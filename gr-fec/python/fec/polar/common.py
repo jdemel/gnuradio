@@ -6,6 +6,8 @@ import numpy as np
 '''
 PolarCommon holds value checks and common initializer code for both Encoder and Decoder.
 '''
+
+
 class PolarCommon:
     def __init__(self, n, k, frozen_bit_position, frozenbits=None, reverse=True):
         if not self._is_power_of_two(n):
@@ -21,13 +23,13 @@ class PolarCommon:
         if not frozen_bit_position.dtype == np.int:
             frozen_bit_position = frozen_bit_position.astype(dtype=int)
 
+        self.frozen_bit_position_unreversed = frozen_bit_position
         if not reverse:
             numbits = np.int(np.round(np.log2(n)))
             frozen_bit_position = np.array([self._bit_reverse(i, numbits) for i in frozen_bit_position], dtype=int)
             frozen_bit_position = np.sort(frozen_bit_position)
 
-        if reverse:
-            self.bit_reverse_positions = self._vector_bit_reversed(np.arange(n, dtype=int), int(np.log2(n)))
+        self.bit_reverse_positions = self._vector_bit_reversed(np.arange(n, dtype=int), int(np.log2(n)))
 
         self.reverse = reverse
         self.N = n
@@ -35,6 +37,9 @@ class PolarCommon:
         self.frozenbits = frozenbits
         self.frozen_bit_position = frozen_bit_position
         self.info_bit_position = np.delete(np.arange(self.N), self.frozen_bit_position)
+
+        print 'frozenbits', self.frozenbits
+        print 'frozenpos ', self.frozen_bit_position
 
     def _is_power_of_two(self, num):
         if type(num) != int:

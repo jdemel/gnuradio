@@ -49,6 +49,12 @@ class PolarEncoder(PolarCommon):
         prototype[self.info_bit_position] = data
         return prototype
 
+    def _encode_matrix(self, data):
+        data = self._insert_frozen_bits(data)
+        data = np.dot(data, self.G) % 2
+        data = data.astype(dtype=int)
+        return data
+
     def encode(self, data, is_packed=False):
         if len(data) is not self.K:
             raise ValueError("len(data)={0} is not equal to k={1}!".format(len(data), self.K))
@@ -56,9 +62,7 @@ class PolarEncoder(PolarCommon):
             data = np.unpackbits(data)
         if np.max(data) > 1 or np.min(data) < 0:
             raise ValueError("can only encode bits!")
-        data = self._insert_frozen_bits(data)
-        data = np.dot(data, self.G) % 2
-        data = data.astype(dtype=int)
+        data = self._encode_matrix(data)
         if is_packed:
             data = np.packbits(data)
         return data

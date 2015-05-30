@@ -13,8 +13,8 @@ def test_enc_dec_chain():
     frozenbitposition = np.array((0, 1, 2, 3, 4, 5, 8, 9), dtype=int)
     for i in range(ntests):
         bits = np.random.randint(2, size=k)
-        encoder = PolarEncoder(n, k, frozenbitposition, frozenbits, reverse=True)
-        decoder = PolarDecoder(n, k, frozenbitposition, frozenbits, reverse=True)
+        encoder = PolarEncoder(n, k, frozenbitposition, frozenbits, apply_bit_reversal=True)
+        decoder = PolarDecoder(n, k, frozenbitposition, frozenbits, apply_bit_reversal=True)
         encoded = encoder.encode(bits)
         rx = decoder.decode(encoded)
         # print 'bits:', bits
@@ -23,25 +23,6 @@ def test_enc_dec_chain():
         if not (bits == rx).all():
             raise ValueError('Test failed, input and output differ', bits, '!=', rx)
 
-
-def test_enc_dec_chain_without_reverse():
-    ntests = 100
-    n = 16
-    k = 8
-    frozenbits = np.zeros(n - k)
-    frozenbitposition = np.array((0, 1, 2, 3, 4, 5, 8, 9), dtype=int)
-    for i in range(ntests):
-        bits = np.random.randint(2, size=k)
-        encoder = PolarEncoder(n, k, frozenbitposition, frozenbits, reverse=True)
-        decoder = PolarDecoder(n, k, frozenbitposition, frozenbits, reverse=False)
-        encoded = encoder.encode(bits)
-        rx = decoder.decode(encoded)
-        print 'bits:', bits
-        print 'rx  :', rx
-        print (bits == rx).all()
-        if not (bits == rx).all():
-            # raise ValueError('Test failed, input and output differ', bits, '!=', rx)
-            return
 
 
 def main():
@@ -58,7 +39,6 @@ def main():
     #
 
     test_enc_dec_chain()
-    test_enc_dec_chain_without_reverse()
 
 
 

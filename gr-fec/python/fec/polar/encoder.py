@@ -5,9 +5,9 @@ from common import PolarCommon
 
 
 class PolarEncoder(PolarCommon):
-    def __init__(self, n, k, frozen_bit_position, frozenbits=None, reverse=True):
-        PolarCommon.__init__(self, n, k, frozen_bit_position, frozenbits, reverse)
-        self.G = self._gn(n, reverse)
+    def __init__(self, n, k, frozen_bit_position, frozenbits=None, apply_bit_reversal=True):
+        PolarCommon.__init__(self, n, k, frozen_bit_position, frozenbits, apply_bit_reversal)
+        self.G = self._gn(n, apply_bit_reversal)
 
     def _gn(self, n, reverse=True):
         # this matrix is called generator matrix
@@ -43,17 +43,26 @@ class PolarEncoder(PolarCommon):
     def get_gn(self):
         return self.G
 
-    def _insert_frozen_bits(self, data):
-        prototype = np.empty(self.N, dtype=int)
-        prototype[self.frozen_bit_position] = self.frozenbits
-        prototype[self.info_bit_position] = data
-        return prototype
-
     def _encode_matrix(self, data):
         data = self._insert_frozen_bits(data)
         data = np.dot(data, self.G) % 2
         data = data.astype(dtype=int)
         return data
+
+    def _encode_efficient(self, vec):
+        vec = self._insert_frozen_bits(vec)
+        nstages = int(np.log2(self.N))
+
+        if self.apply_bit_reversal:
+            vec = vec[self.bit_reverse_positions]
+
+        pos = np.arange(self.N, dtype=int)
+        for i in range(nstages):
+            splitted = np.reshape(pos, (2 ** (i + 1), -1))
+            upper_branch = splitted[0::2].flatten()
+            lower_branch = splitted[1::2].flatten()
+            vec[upper_branch] = (vec[upper_branch] + vec[lower_branch]) % 2
+        return vec
 
     def encode(self, data, is_packed=False):
         if len(data) is not self.K:
@@ -66,21 +75,6 @@ class PolarEncoder(PolarCommon):
         if is_packed:
             data = np.packbits(data)
         return data
-
-    def _encode_efficient(self, vec):
-        vec = self._insert_frozen_bits(vec)
-        nstages = int(np.log2(self.N))
-
-        if self.reverse:
-            vec = vec[self.bit_reverse_positions]
-
-        pos = np.arange(self.N, dtype=int)
-        for i in range(nstages):
-            splitted = np.reshape(pos, (2 ** (i + 1), -1))
-            upper_branch = splitted[0::2].flatten()
-            lower_branch = splitted[1::2].flatten()
-            vec[upper_branch] = (vec[upper_branch] + vec[lower_branch]) % 2
-        return vec
 
 
 def compare_results(encoder, ntests, k):
@@ -101,10 +95,10 @@ def test_encoder_impls():
     frozenbits = np.zeros(n - k)
     # frozenbitposition8 = np.array((0, 1, 2, 4), dtype=int)  # keep it!
     frozenbitposition = np.array((0, 1, 2, 3, 4, 5, 8, 9), dtype=int)
-    encoder = PolarEncoder(n, k, frozenbitposition, frozenbits, reverse=True)
+    encoder = PolarEncoder(n, k, frozenbitposition, frozenbits, apply_bit_reversal=True)
     print 'reverse=True , result:', compare_results(encoder, ntests, k)
 
-    encoder = PolarEncoder(n, k, frozenbitposition, frozenbits, reverse=False)
+    encoder = PolarEncoder(n, k, frozenbitposition, frozenbits, apply_bit_reversal=False)
     print 'reverse=False, result:', compare_results(encoder, ntests, k)
 
 

@@ -9,7 +9,7 @@ PolarCommon holds value checks and common initializer code for both Encoder and 
 
 
 class PolarCommon:
-    def __init__(self, n, k, frozen_bit_position, frozenbits=None, reverse=True):
+    def __init__(self, n, k, frozen_bit_position, frozenbits=None, apply_bit_reversal=True):
         if not self._is_power_of_two(n):
             raise ValueError("n={0} is not a power of 2!".format(n))
         if frozenbits is None:
@@ -24,22 +24,28 @@ class PolarCommon:
             frozen_bit_position = frozen_bit_position.astype(dtype=int)
 
         self.frozen_bit_position_unreversed = frozen_bit_position
-        if not reverse:
+        if not apply_bit_reversal:
             numbits = np.int(np.round(np.log2(n)))
             frozen_bit_position = np.array([self._bit_reverse(i, numbits) for i in frozen_bit_position], dtype=int)
             frozen_bit_position = np.sort(frozen_bit_position)
 
         self.bit_reverse_positions = self._vector_bit_reversed(np.arange(n, dtype=int), int(np.log2(n)))
 
-        self.reverse = reverse
+        self.apply_bit_reversal = apply_bit_reversal
         self.N = n
         self.K = k
         self.frozenbits = frozenbits
         self.frozen_bit_position = frozen_bit_position
         self.info_bit_position = np.delete(np.arange(self.N), self.frozen_bit_position)
 
-        print 'frozenbits', self.frozenbits
-        print 'frozenpos ', self.frozen_bit_position
+    def _insert_frozen_bits(self, u):
+        prototype = np.empty(self.N, dtype=int)
+        prototype[self.frozen_bit_position] = self.frozenbits
+        prototype[self.info_bit_position] = u
+        return prototype
+
+    def _extract_info_bits(self, y):
+        return y[self.info_bit_position]
 
     def _is_power_of_two(self, num):
         if type(num) != int:

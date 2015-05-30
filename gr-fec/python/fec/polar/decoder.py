@@ -9,9 +9,9 @@ from matplotlib import pyplot as plt
 
 
 class PolarDecoder(PolarCommon):
-    def __init__(self, n, k, frozen_bit_position, frozenbits=None, reverse=True):
+    def __init__(self, n, k, frozen_bit_position, frozenbits=None, apply_bit_reversal=True):
         self.info_bit_position_reversed = np.delete(np.arange(n), frozen_bit_position)
-        PolarCommon.__init__(self, n, k, frozen_bit_position, frozenbits, reverse)
+        PolarCommon.__init__(self, n, k, frozen_bit_position, frozenbits, apply_bit_reversal)
 
         self.error_probability = 0.1  # this is kind of a dummy value. usually chosen individually.
         self.bsc_lr = ((1 - self.error_probability) / self.error_probability, self.error_probability / (1 - self.error_probability))
@@ -77,29 +77,21 @@ class PolarDecoder(PolarCommon):
             return self._lr_even(la, lb, ui)
 
     def _lr_sc_decoder(self, y):
+        # this is the standard SC decoder as derived from the formulas. It sticks to natural bit order.
         u = np.array([], dtype=int)
         for i in range(y.size):
             lr = self._lr_decision_element(y, u)
             ui = self._retrieve_bit_from_lr(lr, i)
             u = np.append(u, ui)
-
-        if not self.reverse:
-        #     print self.bit_reverse_positions
-        #     print u
-            u[self.bit_reverse_positions] = u
-        #     print u
         return u
 
     def _retrieve_bit_from_lr(self, lr, pos):
-        f_index = np.where(self.frozen_bit_position_unreversed == pos)[0]
+        f_index = np.where(self.frozen_bit_position == pos)[0]
         if not f_index.size == 0:
             ui = self.frozenbits[f_index]
         else:
             ui = self._lr_bit_decision(lr)
         return ui
-
-    def _extract_info_bits(self, data):
-        return data[self.info_bit_position_reversed]
 
     def decode(self, data, is_packed=False):
         if len(data) is not self.N:
@@ -107,7 +99,6 @@ class PolarDecoder(PolarCommon):
         if is_packed:
             data = np.unpackbits(data)
         data = self._lr_sc_decoder(data)
-        print data
         data = self._extract_info_bits(data)
         if is_packed:
             data = np.packbits(data)
@@ -147,8 +138,8 @@ def test_reverse_enc_dec():
     frozenbits = np.zeros(n - k)
     frozenbitposition = np.array((0, 1, 2, 3, 4, 5, 8, 9), dtype=int)
     bits = np.random.randint(2, size=k)
-    encoder = PolarEncoder(n, k, frozenbitposition, frozenbits, reverse=False)
-    decoder = PolarDecoder(n, k, frozenbitposition, frozenbits, reverse=False)
+    encoder = PolarEncoder(n, k, frozenbitposition, frozenbits, apply_bit_reversal=True)
+    decoder = PolarDecoder(n, k, frozenbitposition, frozenbits, apply_bit_reversal=True)
     encoded = encoder.encode(bits)
     print 'encoded:', encoded
     rx = decoder.decode(encoded)
@@ -167,7 +158,7 @@ def main():
     frozenbitposition4 = np.array((0, 1), dtype=int)
 
 
-    encoder = PolarEncoder(n, k, frozenbitposition, frozenbits, reverse=False)
+    encoder = PolarEncoder(n, k, frozenbitposition, frozenbits, apply_bit_reversal=False)
     decoder = PolarDecoder(n, k, frozenbitposition, frozenbits)
 
     bits = np.ones(k, dtype=int)

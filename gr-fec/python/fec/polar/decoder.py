@@ -75,22 +75,36 @@ class PolarDecoder(PolarCommon):
             la, lb = self._calculate_lrs(y, u[0:-1])
             return self._lr_even(la, lb, ui)
 
+    def _retrieve_bit_from_lr(self, lr, pos):
+        f_index = np.where(self.frozen_bit_position == pos)[0]
+        if not f_index.size == 0:
+            ui = self.frozenbits[f_index][0]
+        else:
+            ui = self._lr_bit_decision(lr)
+        return ui
+
     def _lr_sc_decoder(self, y):
         # this is the standard SC decoder as derived from the formulas. It sticks to natural bit order.
         u = np.array([], dtype=int)
         for i in range(y.size):
             lr = self._lr_decision_element(y, u)
             ui = self._retrieve_bit_from_lr(lr, i)
+            print(lr, '-->', ui)
             u = np.append(u, ui)
         return u
 
-    def _retrieve_bit_from_lr(self, lr, pos):
-        f_index = np.where(self.frozen_bit_position == pos)[0]
-        if not f_index.size == 0:
-            ui = self.frozenbits[f_index]
-        else:
-            ui = self._lr_bit_decision(lr)
-        return ui
+    def _lr_sc_decoder_efficient(self, y):
+        nstages = int(np.log2(self.N))
+        print nstages
+        lr_vec = np.array([self._lr_bit(l) for l in y])
+        print range(0, 8, 2)
+        print range(1, nstages + 1)
+        for stage in range(1, nstages + 1):
+            print stage, '-->', lr_vec
+            print(range(0, len(y), 2 ** stage))
+            for i in range(0, len(y), 2 ** stage):
+                lr_vec[i] = self._lr_odd(lr_vec[i], lr_vec[i + (2 ** (stage - 1))])
+        return lr_vec
 
     def decode(self, data, is_packed=False):
         if len(data) is not self.N:
@@ -147,6 +161,24 @@ def test_reverse_enc_dec():
     print (bits == rx).all()
 
 
+def compare_decoder_impls():
+    n = 8
+    k = 4
+    frozenbits = np.zeros(n - k)
+    # frozenbitposition = np.array((0, 1, 2, 3, 4, 5, 8, 9), dtype=int)
+    frozenbitposition = np.array((0, 1, 2, 4), dtype=int)
+    bits = np.ones(k, dtype=int)
+    encoder = PolarEncoder(n, k, frozenbitposition, frozenbits)
+    decoder = PolarDecoder(n, k, frozenbitposition, frozenbits)
+    encoded = encoder.encode(bits)
+    print 'encoded:', encoded
+    rx_st = decoder._lr_sc_decoder(encoded)
+    rx_eff = decoder._lr_sc_decoder_efficient(encoded)
+    print 'standard :', rx_st
+    print 'efficient:', rx_eff
+    # print (bits == rx).all()
+
+
 
 def main():
     power = 3
@@ -190,6 +222,7 @@ def main():
     print graph
 
     test_reverse_enc_dec()
+    compare_decoder_impls()
 
 
 

@@ -9,9 +9,8 @@ from matplotlib import pyplot as plt
 
 
 class PolarDecoder(PolarCommon):
-    def __init__(self, n, k, frozen_bit_position, frozenbits=None, apply_bit_reversal=True):
-        self.info_bit_position_reversed = np.delete(np.arange(n), frozen_bit_position)
-        PolarCommon.__init__(self, n, k, frozen_bit_position, frozenbits, apply_bit_reversal)
+    def __init__(self, n, k, frozen_bit_position, frozenbits=None):
+        PolarCommon.__init__(self, n, k, frozen_bit_position, frozenbits)
 
         self.error_probability = 0.1  # this is kind of a dummy value. usually chosen individually.
         self.bsc_lr = ((1 - self.error_probability) / self.error_probability, self.error_probability / (1 - self.error_probability))
@@ -138,8 +137,8 @@ def test_reverse_enc_dec():
     frozenbits = np.zeros(n - k)
     frozenbitposition = np.array((0, 1, 2, 3, 4, 5, 8, 9), dtype=int)
     bits = np.random.randint(2, size=k)
-    encoder = PolarEncoder(n, k, frozenbitposition, frozenbits, apply_bit_reversal=True)
-    decoder = PolarDecoder(n, k, frozenbitposition, frozenbits, apply_bit_reversal=True)
+    encoder = PolarEncoder(n, k, frozenbitposition, frozenbits)
+    decoder = PolarDecoder(n, k, frozenbitposition, frozenbits)
     encoded = encoder.encode(bits)
     print 'encoded:', encoded
     rx = decoder.decode(encoded)
@@ -158,7 +157,7 @@ def main():
     frozenbitposition4 = np.array((0, 1), dtype=int)
 
 
-    encoder = PolarEncoder(n, k, frozenbitposition, frozenbits, apply_bit_reversal=False)
+    encoder = PolarEncoder(n, k, frozenbitposition, frozenbits)
     decoder = PolarDecoder(n, k, frozenbitposition, frozenbits)
 
     bits = np.ones(k, dtype=int)

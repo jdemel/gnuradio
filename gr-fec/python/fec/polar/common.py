@@ -25,6 +25,7 @@ class PolarCommon:
 
         self.bit_reverse_positions = self._vector_bit_reversed(np.arange(n, dtype=int), int(np.log2(n)))
         self.N = n
+        self.power = int(np.log2(self.N))
         self.K = k
         self.frozenbits = frozenbits
         self.frozen_bit_position = frozen_bit_position

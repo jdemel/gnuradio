@@ -4,6 +4,8 @@ import numpy as np
 from encoder import PolarEncoder
 from decoder import PolarDecoder
 
+import matplotlib.pyplot as plt
+
 
 def test_enc_dec_chain():
     ntests = 100
@@ -21,7 +23,15 @@ def test_enc_dec_chain():
         # print 'rx  :', rx
         # print (bits == rx).all()
         if not (bits == rx).all():
-            raise ValueError('Test failed, input and output differ', bits, '!=', rx)
+            raise ValueError('Test #',i, 'failed, input and output differ', bits, '!=', rx)
+
+
+def exact_value(la, lb):
+    return np.log((np.exp(la + lb) + 1) / (np.exp(la) + np.exp(lb)))
+
+
+def approx_value(la, lb):
+    return np.sign(la) * np.sign(lb) * np.minimum(np.abs(la), np.abs(lb))
 
 
 def main():

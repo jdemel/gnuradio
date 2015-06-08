@@ -8,24 +8,20 @@ import matplotlib.pyplot as plt
 
 
 def test_enc_dec_chain():
-    ntests = 100
-    n = 16
-    k = 8
+    ntests = 1000
+    n = 32
+    k = 16
     frozenbits = np.zeros(n - k)
-    frozenbitposition = np.array((0, 1, 2, 3, 4, 5, 8, 9), dtype=int)
+    frozenbitposition = np.array((0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 12, 16, 17, 18, 20, 24), dtype=int)
+    # frozenbitposition = np.array((0, 1, 2, 3, 4, 5, 8, 9), dtype=int)
     for i in range(ntests):
         bits = np.random.randint(2, size=k)
         encoder = PolarEncoder(n, k, frozenbitposition, frozenbits)
         decoder = PolarDecoder(n, k, frozenbitposition, frozenbits)
         encoded = encoder.encode(bits)
         rx = decoder.decode(encoded)
-        # print 'bits:', bits
-        # print 'rx  :', rx
-        # print (bits == rx).all()
         if not is_equal(bits, rx):
-            print 'bits:', bits
-            print 'recv:', rx
-            raise ValueError('Test #',i, 'failed, input and output differ', bits, '!=', rx)
+            raise ValueError('Test #', i, 'failed, input and output differ', bits, '!=', rx)
             return
 
 

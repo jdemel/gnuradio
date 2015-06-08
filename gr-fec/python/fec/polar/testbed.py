@@ -22,8 +22,20 @@ def test_enc_dec_chain():
         # print 'bits:', bits
         # print 'rx  :', rx
         # print (bits == rx).all()
-        if not (bits == rx).all():
+        if not is_equal(bits, rx):
+            print 'bits:', bits
+            print 'recv:', rx
             raise ValueError('Test #',i, 'failed, input and output differ', bits, '!=', rx)
+            return
+
+
+def is_equal(first, second):
+    if not (first == second).all():
+        result = first == second
+        for i in range(len(result)):
+            print '{0:4}: {1:2} == {2:1} = {3}'.format(i, first[i], second[i], result[i])
+        return False
+    return True
 
 
 def exact_value(la, lb):

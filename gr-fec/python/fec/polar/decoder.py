@@ -21,7 +21,7 @@ class PolarDecoder(PolarCommon):
 
     def _llr_odd(self, la, lb):
         # this functions uses the min-sum approximation
-        # np.log(e ** (la + lb) + 1 / (e ** la + e ** lb) )
+        # exact formula: np.log((np.exp(la + lb) + 1) / (np.exp(la) + np.exp(lb)))
         return np.sign(la) * np.sign(lb) * np.minimum(np.abs(la), np.abs(lb))
 
     _f_vals = np.array((1.0, -1.0), dtype=float)
@@ -106,56 +106,52 @@ class PolarDecoder(PolarCommon):
             u = np.append(u, ui)
         return u
 
+    def _butterfly_decode_bits(self, pos, graph, u):
+        # print(graph)
+        llr = graph[pos][0]
+        ui = self._llr_bit_decision(llr)
+        # print(llr, '-->', ui)
+        u = np.append(u, ui)
+        lower_right = pos + (self.N // 2)
+        la = graph[pos][1]
+        lb = graph[lower_right][1]
+        # print('la', la, 'lb', lb, 'ui', ui)
+        graph[lower_right][0] = self._llr_even(la, lb, ui)
+        llr = graph[lower_right][0]
+        # ui = self._retrieve_bit_from_llr(llr, u.size)
+        ui = self._llr_bit_decision(llr)
+        u = np.append(u, ui)
+        # print(llr, '-->', ui)
+        # print(graph)
+        return graph, u
+
     def _lr_sc_decoder_efficient(self, y):
         graph = np.full((self.N, self.power + 1), np.NaN, dtype=float)
         for i in range(self.N):
             graph[i][self.power] = self._llr_bit(y[i])
+        # print(graph)
         decode_order = self._vector_bit_reversed(np.arange(self.N), self.power)
-        print decode_order
+        # print decode_order
         decode_order = np.delete(decode_order, np.where(decode_order >= self.N // 2))
-        print(decode_order)
+        # print(decode_order)
         slot = 1
         u = np.array([], dtype=int)
         for pos in decode_order:
             slot, graph = self._butterfly(pos, 0, slot, graph, u)
             slot += 1
-            # ui = self._retrieve_bit_from_llr(graph[pos][0], u.size)
-            llr = graph[pos][0]
-            ui = self._llr_bit_decision(llr)
-            print(llr, '-->', ui)
-            u = np.append(u, ui)
-            lower_right = pos + self.N // 2
-            la = graph[pos][1]
-            lb = graph[lower_right][1]
-            graph[lower_right][0] = llr = self._llr_even(la, lb, ui)
-            # ui = self._retrieve_bit_from_llr(llr, u.size)
-            ui = self._llr_bit_decision(llr)
-            u = np.append(u, ui)
-            print(llr, '-->', ui)
-            # print 'decoded bits:', u
-            # print(graph)
-        # print np.shape(graph)
-        # print graph
-        # gf = graph.T[0]
-        # reved = self._vector_bit_reversed(np.arange(self.N, dtype=int), self.power)
-        # print reved
-        # gf = gf[reved]
-        # for e in range(self.N):
-        #     print gf[e]  #, graph.T[0][e]
-        #
-        # print self.frozen_bit_position
+            graph, u = self._butterfly_decode_bits(pos, graph, u)
         return u
 
-    def _stop_propagation(self, upper_left, stage):
+    def _stop_propagation(self, bf_entry_row, stage):
         # calculate break condition
         modulus = 2 ** (self.power - stage)
         # stage_size = self.N // (2 ** stage)
         # half_stage_size = stage_size // 2
         half_stage_size = self.N // (2 ** (stage + 1))
-        stage_pos = upper_left % modulus
+        stage_pos = bf_entry_row % modulus
         return stage_pos >= half_stage_size
 
-    def _butterfly(self, upper_left, stage, slot, graph, u):
+    def _butterfly(self, bf_entry_row, stage, slot, graph, u):
         # break if already processed
         # print 'stage', stage, 'upper', upper_left
 
@@ -163,25 +159,26 @@ class PolarDecoder(PolarCommon):
             slot += 1
             return slot, graph
 
-        if self._stop_propagation(upper_left, stage):
-            upper_right = upper_left - self.N // (2 ** (stage + 1))
-            la = graph[upper_left][stage + 1]
-            lb = graph[upper_right][stage + 1]
+        if self._stop_propagation(bf_entry_row, stage):
+            upper_right = bf_entry_row - self.N // (2 ** (stage + 1))
+            la = graph[upper_right][stage + 1]
+            lb = graph[bf_entry_row][stage + 1]
             ui = u[-1]
-            graph[upper_left][stage] = self._llr_even(la, lb, ui)
+            graph[bf_entry_row][stage] = self._llr_even(la, lb, ui)
+            # print('position', (upper_left, stage), 'llr=', graph[upper_left][stage], 'for la=', la, 'lb=', lb, 'with ui=', ui)
             slot += 1
             return slot, graph
 
         # activate right side butterflies
         u_even = self._get_even_indices_values(u)
         u_odd = self._get_odd_indices_values(u)
-        slot_u, graph = self._butterfly(upper_left, stage + 1, slot, graph, (u_even + u_odd) % 2)
-        lower_right = upper_left + self.N // (2 ** (stage + 1))
+        slot_u, graph = self._butterfly(bf_entry_row, stage + 1, slot, graph, (u_even + u_odd) % 2)
+        lower_right = bf_entry_row + self.N // (2 ** (stage + 1))
         slot_l, graph = self._butterfly(lower_right, stage + 1, slot, graph, u_even)
 
-        la = graph[upper_left][stage + 1]
+        la = graph[bf_entry_row][stage + 1]
         lb = graph[lower_right][stage + 1]
-        graph[upper_left][stage] = self._llr_odd(la, lb)
+        graph[bf_entry_row][stage] = self._llr_odd(la, lb)
         slot = slot_l + 1
         return slot, graph
 
@@ -190,7 +187,7 @@ class PolarDecoder(PolarCommon):
             raise ValueError("len(data)={0} is not equal to n={1}!".format(len(data), self.N))
         if is_packed:
             data = np.unpackbits(data)
-        data = self._lr_sc_decoder(data)
+        data = self._lr_sc_decoder_efficient(data)
         data = self._extract_info_bits(data)
         if is_packed:
             data = np.packbits(data)
@@ -215,17 +212,17 @@ def test_reverse_enc_dec():
 
 def compare_decoder_impls():
     print '\nthis is decoder test'
-
     n = 8
     k = 4
     frozenbits = np.zeros(n - k)
     # frozenbitposition = np.array((0, 1, 2, 3, 4, 5, 8, 9), dtype=int)
     frozenbitposition = np.array((0, 1, 2, 4), dtype=int)
-    bits = np.ones(k, dtype=int)
+    # bits = np.ones(k, dtype=int)
     bits = np.random.randint(2, size=k)
-    print 'bits:', bits
     # bits = np.array([0, 1, 1, 1])
     # bits = np.array([0, 1, 1, 0])
+    bits = np.array([1, 0, 1, 0])
+    print 'bits:', bits
     encoder = PolarEncoder(n, k, frozenbitposition, frozenbits)
     decoder = PolarDecoder(n, k, frozenbitposition, frozenbits)
     encoded = encoder.encode(bits)

@@ -75,6 +75,20 @@ def compare_results(encoder, ntests, k):
     return True
 
 
+def test_pseudo_rate_1_encoder(encoder, ntests, k):
+    for n in range(ntests):
+        bits = np.random.randint(2, size=k)
+        u = encoder._prepare_input_data(bits)
+        fenc = encoder._encode_efficient(u)
+        u_hat = encoder._encode_efficient(fenc)
+        if not (u_hat == u).all():
+            print('rate-1 encoder/decoder failed')
+            print u
+            print u_hat
+            return False
+    return True
+
+
 def test_encoder_impls():
     print('comparing encoder implementations, matrix vs. efficient')
     ntests = 1000
@@ -86,10 +100,17 @@ def test_encoder_impls():
     encoder = PolarEncoder(n, k, frozenbitposition, frozenbits)
     print 'result:', compare_results(encoder, ntests, k)
 
+    print('Test rate-1 encoder/decoder chain results')
+    r1_test = test_pseudo_rate_1_encoder(encoder, ntests, k)
+    print 'test rate-1 encoder/decoder:', r1_test
+
+
 
 def main():
     print "main in encoder"
     test_encoder_impls()
+
+
 
 
 if __name__ == '__main__':

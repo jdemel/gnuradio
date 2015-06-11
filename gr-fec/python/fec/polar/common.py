@@ -1,7 +1,26 @@
-__author__ = 'johannes'
+#!/usr/bin/env python
+#
+# Copyright 2015 Free Software Foundation, Inc.
+#
+# GNU Radio is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3, or (at your option)
+# any later version.
+#
+# GNU Radio is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU Radio; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street,
+# Boston, MA 02110-1301, USA.
+#
 
 
 import numpy as np
+from helper_functions import *
 
 '''
 PolarCommon holds value checks and common initializer code for both Encoder and Decoder.
@@ -10,7 +29,7 @@ PolarCommon holds value checks and common initializer code for both Encoder and 
 
 class PolarCommon:
     def __init__(self, n, k, frozen_bit_position, frozenbits=None):
-        if not self._is_power_of_two(n):
+        if not is_power_of_two(n):
             raise ValueError("n={0} is not a power of 2!".format(n))
         if frozenbits is None:
             frozenbits = np.zeros(n - k, dtype=np.int)
@@ -43,31 +62,8 @@ class PolarCommon:
     def _reverse_bits(self, vec):
         return vec[self.bit_reverse_positions]
 
-    def _is_power_of_two(self, num):
-        if type(num) != int:
-            return False  # make sure we only compute integers.
-        return num != 0 and ((num & (num - 1)) == 0)
-
-    def _bit_reverse(self, value, n):
-        # is this really missing in NumPy???
-        seq = np.int(value)
-        rev = np.int(0)
-        rmask = np.int(1)
-        lmask = np.int(2 ** (n - 1))
-        for i in range(n // 2):
-            shiftval = n - 1 - (i * 2)
-            rshift = np.left_shift(np.bitwise_and(seq, rmask), shiftval)
-            lshift = np.right_shift(np.bitwise_and(seq, lmask), shiftval)
-            rev = np.bitwise_or(rev, rshift)
-            rev = np.bitwise_or(rev, lshift)
-            rmask = np.left_shift(rmask, 1)
-            lmask = np.right_shift(lmask, 1)
-        if not n % 2 == 0:
-            rev = np.bitwise_or(rev, np.bitwise_and(seq, rmask))
-        return rev
-
     def _vector_bit_reversed(self, vec, n):
-        return np.array([self._bit_reverse(e, n) for e in vec], dtype=vec.dtype)
+        return bit_reverse_vector(vec, n)
 
     def info_print(self):
         print "POLAR code ({0}, {1})".format(self.N, self.K)

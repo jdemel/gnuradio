@@ -104,10 +104,19 @@ def bhattacharyya_parameter(w):
 
 
 def w_transition_prob(y, u, p):
-    return 1 - p if y == u else p
+    return p[y == u]
+    # return 1 - p if y == u else p
+
+# @profile
+def calculate_joint_transition_probability(N, y, x, transition_probs):
+    single_ws = np.empty(N)
+    single_ws[y == x] = transition_probs[True]
+    single_ws[y != x] = transition_probs[False]
+    return np.prod(single_ws)
 
 
-def w_split_prob(y, u, G, p):
+# @profile
+def w_split_prob(y, u, G, transition_probs):
     ''' Calculate channel splitting probabilities. '''
     N = len(y)  # number of combined channels
     df = N - len(u)  # degrees of freedom.
@@ -115,26 +124,23 @@ def w_split_prob(y, u, G, p):
     for uf in range(2 ** df):
         utemp = unpack_byte(np.array([uf, ]), df)
         ub = np.concatenate((u, utemp))
-        # print "y=", y, "\tu=", ub
         x = np.dot(ub, G) % 2
-        # print "x=", x
-        w = 1.0
-        for i in range(N):
-            w *= w_transition_prob(y[i], x[i], p)
-        # print "for u1=", uf, "prob=", w
+        true_num = np.sum(y == x)
+        false_num = N - true_num
+        w = (transition_probs[True] ** true_num) * (transition_probs[False] ** false_num)
+        # w = calculate_joint_transition_probability(N, y, x, transition_probs)
         prob += w
     divider = 1.0 / (2 ** (N - 1))
     return divider * prob
 
-
+# @profile
 def wn_split_channel(N, p):
     G = get_Gn(N)
     y = np.zeros((N, ), dtype=np.uint8)
     n = 1
     u = np.zeros((n + 1, ), dtype=np.uint8)
+    transition_probs = np.array([p, 1 - p], dtype=float)
 
-    pn = w_split_prob(y, u, G, p)
-    # print "pn=", pn
     z_params = []
     c_params = []
     for w in range(N):
@@ -143,17 +149,14 @@ def wn_split_channel(N, p):
         w_probs = np.zeros((nentries, 2), dtype=float)
         for y in range(2 ** N):
             yb = unpack_byte(np.array([y, ]), N)
-            # print "\n\nyb", yb
             for u in range(2 ** (w + 1)):
                 ub = unpack_byte(np.array([u, ]), w + 1)
-                # print "ub", ub
-                wp = w_split_prob(yb, ub, G, p)
+                wp = w_split_prob(yb, ub, G, transition_probs)
                 ufixed = ub[0:-1]
                 yindex = y * (2 ** w) + pack_byte(ufixed)
                 uindex = ub[-1]
-                # print "y=", y, "ub", u, " prob=", wp, "index=[", yindex, ", ", uindex, "]"
                 w_probs[yindex][uindex] = wp
-        print "\n", np.sum(w_probs, axis=0)
+
         z = bhattacharyya_parameter(w_probs)
         z_params.append(z)
         c = mutual_information(w_probs)
@@ -165,13 +168,20 @@ def wn_split_channel(N, p):
 
 def main():
     print 'channel construction BSC main'
-    n = 2 ** 6
-    k = n // 2
+    n = 3
+    m = 2 ** n
+    k = m // 2
     eta = 0.3
     p = 0.1
-    z, c = wn_split_channel(4, p)
-    print(z)
-    print(c)
+    # z, c = wn_split_channel(m, p)
+    # print(z)
+    # print(c)
+
+    u = np.zeros(m, dtype=bool)
+    G = get_Gn(m).astype(dtype=bool)
+    print G
+    print np.dot(u, G)
+
 
 
 if __name__ == '__main__':

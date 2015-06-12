@@ -69,14 +69,14 @@ class PolarEncoder(PolarCommon):
         return vec
 
     def encode(self, data, is_packed=False):
-        if len(data) is not self.K:
+        if not len(data) == self.K:
             raise ValueError("len(data)={0} is not equal to k={1}!".format(len(data), self.K))
         if is_packed:
             data = np.unpackbits(data)
         if np.max(data) > 1 or np.min(data) < 0:
             raise ValueError("can only encode bits!")
         data = self._prepare_input_data(data)
-        data = self._encode_matrix(data)
+        data = self._encode_efficient(data)
         if is_packed:
             data = np.packbits(data)
         return data

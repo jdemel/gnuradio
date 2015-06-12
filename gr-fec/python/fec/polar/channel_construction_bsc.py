@@ -166,6 +166,24 @@ def wn_split_channel(N, p):
     return z_params, c_params
 
 
+def calculate_z_param(x):
+    # variables etc taken from paper bei Ido Tal et al.
+    # name there is f(x)
+    # x is the cross over probability of a BSC.
+    return 2 * np.sqrt(x * (1 - x))
+
+
+def calculate_capacity(x):
+    # in paper it is called g(x)
+    return -1. * x * np.log(x) - (1 - x) * np.log(1 - x)
+
+
+def splitting_masses_algorithm(n, k):
+    m = 2 ** n
+    p0 = 1.0 / m
+    mass_vec
+
+
 def main():
     print 'channel construction BSC main'
     n = 3

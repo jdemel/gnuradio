@@ -181,7 +181,7 @@ class PolarDecoder(PolarCommon):
         return graph
 
     def decode(self, data, is_packed=False):
-        if len(data) is not self.N:
+        if not len(data) == self.N:
             raise ValueError("len(data)={0} is not equal to n={1}!".format(len(data), self.N))
         if is_packed:
             data = np.unpackbits(data)

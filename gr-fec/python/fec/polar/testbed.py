@@ -25,13 +25,20 @@ from decoder import PolarDecoder
 import matplotlib.pyplot as plt
 
 
-def test_enc_dec_chain():
-    ntests = 1000
-    n = 32
-    k = 16
-    frozenbits = np.zeros(n - k)
-    frozenbitposition = np.array((0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 12, 16, 17, 18, 20, 24), dtype=int)
+def get_frozen_bit_position():
+    # frozenbitposition = np.array((0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 12, 16, 17, 18, 20, 24), dtype=int)
     # frozenbitposition = np.array((0, 1, 2, 3, 4, 5, 8, 9), dtype=int)
+    frozenbitposition = np.load('frozen_bit_positions_n256_k128_p0.11.npy').flatten()
+    print(frozenbitposition)
+    return frozenbitposition
+
+
+def test_enc_dec_chain():
+    ntests = 100
+    n = 256
+    k = n // 2
+    frozenbits = np.zeros(n - k)
+    frozenbitposition = get_frozen_bit_position()
     for i in range(ntests):
         bits = np.random.randint(2, size=k)
         encoder = PolarEncoder(n, k, frozenbitposition, frozenbits)
@@ -60,6 +67,64 @@ def approx_value(la, lb):
     return np.sign(la) * np.sign(lb) * np.minimum(np.abs(la), np.abs(lb))
 
 
+def test_1024_rate_1_code():
+    # effectively a Monte-Carlo simulation for channel polarization.
+    ntests = 10000
+    n = 256
+    k = n
+    transition_prob = 0.11
+    num_transitions = int(k * transition_prob)
+    frozenbits = np.zeros(n - k)
+    frozenbitposition = np.array((), dtype=int)
+    encoder = PolarEncoder(n, k, frozenbitposition, frozenbits)
+    decoder = PolarDecoder(n, k, frozenbitposition, frozenbits)
+
+    channel_counter = np.zeros(k)
+    possible_indices = np.arange(n, dtype=int)
+    for i in range(ntests):
+        bits = np.random.randint(2, size=k)
+        tx = encoder.encode(bits)
+        np.random.shuffle(possible_indices)
+        tx[possible_indices[0:num_transitions]] = (tx[possible_indices[0:num_transitions]] + 1) % 2
+        rx = tx
+        recv = decoder.decode(rx)
+        channel_counter += (bits == recv)
+
+    print channel_counter
+    print(np.min(channel_counter), np.max(channel_counter))
+
+    np.save('channel_counter_' + str(ntests) + '.npy', channel_counter)
+
+
+def find_good_indices(res, nindices):
+    channel_counter = np.copy(res)
+    good_indices = np.zeros(channel_counter.size)
+
+    for i in range(nindices):
+        idx = np.argmax(channel_counter)
+        good_indices[idx] = 1
+        channel_counter[idx] = 0
+    return good_indices
+
+
+def channel_analysis():
+    ntests = 10000
+    filename = 'channel_counter_' + str(ntests) + '.npy'
+    channel_counter = np.load(filename)
+    print(np.min(channel_counter), np.max(channel_counter))
+    channel_counter[0] = np.min(channel_counter)
+    good_indices = find_good_indices(channel_counter, channel_counter.size // 2)
+    frozen_bit_positions = np.where(good_indices > 0)
+    print(frozen_bit_positions)
+    np.save('frozen_bit_positions_n256_k128_p0.11.npy', frozen_bit_positions)
+    good_indices *= 2000
+    good_indices += 4000
+
+
+    plt.plot(channel_counter)
+    plt.plot(good_indices)
+    plt.show()
+
 def main():
     # n = 16
     # k = 8
@@ -70,6 +135,9 @@ def main():
 
     test_enc_dec_chain()
 
+    # test_1024_rate_1_code()
+
+    # channel_analysis()
 
 if __name__ == '__main__':
     main()

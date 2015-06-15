@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<block>
+  <name>POLAR Encoder simple</name>
+  <key>fec_polar_encoder</key>
+  <category>Error Coding</category>
+  <import>import fec</import>
+  <var_make>
+self.$(id) = $(id) = fec.polar_encoder.make($block_size, $num_info_bits, $frozen_bit_positions, $frozen_bit_values)
+  </var_make>
+  <var_value>fec.polar_encoder.make($block_size, $num_info_bits, $frozen_bit_positions, $frozen_bit_values)</var_value>
+  <make></make>
+
+        <param>
+        <name>Ignore Me</name>
+        <key>value</key>
+        <value>"ok"</value>
+        <type>raw</type>
+        <hide>all</hide>
+    </param>
+
+        <param>
+        <name>Parallelism</name>
+        <key>ndim</key>
+        <value>0</value>
+        <type>enum</type>
+        <option>
+            <name>0</name>
+            <key>0</key>
+        </option>
+        <option>
+            <name>1</name>
+            <key>1</key>
+        </option>
+        <option>
+            <name>2</name>
+            <key>2</key>
+        </option>
+    </param>
+
+  <param>
+    <name>Block size (N)</name>
+    <key>block_size</key>
+    <type>int</type>
+  </param>
+
+  <param>
+    <name>#Info Bits (K)</name>
+    <key>num_info_bits</key>
+    <type>int</type>
+  </param>
+
+  <param>
+    <name>Frozen Bit Positions</name>
+    <key>frozen_bit_positions</key>
+    <type>int_vector</type>
+  </param>
+
+  <param>
+    <name>Frozen Bit Values</name>
+    <key>frozen_bit_values</key>
+    <type>int_vector</type>
+  </param>
+</block>

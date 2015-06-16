@@ -27,6 +27,16 @@
 #include <gnuradio/fec/api.h>
 #include <gnuradio/fec/generic_encoder.h>
 
+// Forward declaration for those objects. SWIG doesn't like them to be #include'd.
+namespace gr {
+  namespace blocks {
+    namespace kernel {
+      class pack_k_bits;
+      class unpack_k_bits;
+    }
+  }
+}
+
 namespace gr {
   namespace fec {
 
@@ -61,9 +71,15 @@ namespace gr {
       void insert_frozen_bits(char* target, const char* input);
       void bit_reverse_vector(char* target, const char* input);
       void encode_vector(char* target);
+      void encode_vector_packed(unsigned char* target);
+      void encode_vector_packed_subbyte(unsigned char* target);
+      void encode_vector_packed_interbyte(unsigned char* target);
 
       // helper functions
       long bit_reverse(long value, int active_bits);
+
+      gr::blocks::kernel::pack_k_bits *d_packer;
+      gr::blocks::kernel::unpack_k_bits *d_unpacker;
 
     };
 

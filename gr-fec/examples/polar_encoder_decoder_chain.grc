@@ -6,7 +6,7 @@
     <key>options</key>
     <param>
       <key>author</key>
-      <value></value>
+      <value>Johannes Demel</value>
     </param>
     <param>
       <key>alias</key>
@@ -42,7 +42,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>top_block</value>
+      <value>polar_encoder_decoder_chain</value>
     </param>
     <param>
       <key>max_nouts</key>
@@ -66,11 +66,11 @@
     </param>
     <param>
       <key>title</key>
-      <value></value>
+      <value>POLAR Encoder and Decoder</value>
     </param>
     <param>
       <key>window_size</key>
-      <value>1280, 1024</value>
+      <value>1920, 1080</value>
     </param>
   </block>
   <block>
@@ -168,7 +168,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>False</value>
     </param>
     <param>
       <key>framebits</key>
@@ -205,6 +205,45 @@
     <param>
       <key>mode</key>
       <value>fec.CC_STREAMING</value>
+    </param>
+  </block>
+  <block>
+    <key>variable_polar_encoder_def</key>
+    <param>
+      <key>num_info_bits</key>
+      <value>128</value>
+    </param>
+    <param>
+      <key>block_size</key>
+      <value>256</value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>frozen_bit_positions</key>
+      <value>range(128)</value>
+    </param>
+    <param>
+      <key>frozen_bit_values</key>
+      <value>[0] * 128</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(304, 307)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>polar_encoder</value>
     </param>
   </block>
   <block>
@@ -333,7 +372,7 @@
     </param>
     <param>
       <key>scale</key>
-      <value>1</value>
+      <value>10</value>
     </param>
     <param>
       <key>vlen</key>
@@ -440,57 +479,6 @@
     <param>
       <key>otype</key>
       <value>byte</value>
-    </param>
-  </block>
-  <block>
-    <key>fec_polar_encoder</key>
-    <param>
-      <key>num_info_bits</key>
-      <value>128</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>block_size</key>
-      <value>256</value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>frozen_bit_positions</key>
-      <value>range(128)</value>
-    </param>
-    <param>
-      <key>frozen_bit_values</key>
-      <value>[0,] * 128</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(328, 363)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>polar_encoder</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>"ok"</value>
-    </param>
-    <param>
-      <key>ndim</key>
-      <value>0</value>
     </param>
   </block>
   <block>

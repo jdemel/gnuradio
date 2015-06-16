@@ -30,6 +30,9 @@
 #include <stdexcept>
 #include <volk/volk.h>
 
+#include <gnuradio/blocks/pack_k_bits.h>
+#include <gnuradio/blocks/unpack_k_bits.h>
+
 namespace gr {
   namespace fec {
 
@@ -61,14 +64,15 @@ namespace gr {
         d_frozen_bit_values.push_back(0);
       }
 
-//      for(unsigned int i = 0; i < num_frozen_bits; i++){
-//        std::cout << "position " << d_frozen_bit_positions[i] << ", value " << int(d_frozen_bit_values[i]) << std::endl;
-//      }
-
+      int k = 8;
+      d_unpacker = new gr::blocks::kernel::unpack_k_bits(k);
+      d_packer = new gr::blocks::kernel::pack_k_bits(k);
     }
 
     polar_encoder::~polar_encoder()
     {
+      delete d_unpacker;
+      delete d_packer;
     }
 
     void
@@ -79,11 +83,17 @@ namespace gr {
       char* uncoded_arr = (char*) volk_malloc(sizeof(char) * d_block_size, volk_get_alignment());
       insert_frozen_bits(uncoded_arr, in);
       bit_reverse_vector(out, uncoded_arr);
-      encode_vector(out);
+//      encode_vector(out);
 
-//      for(int i = 0; i < d_block_size; i++){
-//        out[i] = bit_reverse(long(in[i]), d_block_power);
-//      }
+      unsigned char* temp = (unsigned char*) volk_malloc(d_block_size, volk_get_alignment());
+      int num_bytes = d_block_size >> 3;
+      d_packer->pack(temp, (unsigned char*) out, num_bytes);
+      encode_vector_packed(temp);
+      d_unpacker->unpack((unsigned char*) out, temp, num_bytes);
+      volk_free(temp);
+
+
+      volk_free(uncoded_arr);
     }
 
     void
@@ -103,12 +113,50 @@ namespace gr {
         for(int branch = 0; branch < n_branches; branch++){
           for(int e = 0; e < branch_elements; e++){
             int pos = branch * branch_elements * 2 + e;
-//            std::cout << "branch_elements" << branch_elements << ", stage=" << stage << ", branch=" << branch << ", pos=" << pos << std::endl;
             target[pos] ^= target[pos + branch_elements];
           }
-
         }
+      }
+    }
 
+    void
+    polar_encoder::encode_vector_packed(unsigned char* target)
+    {
+      encode_vector_packed_subbyte(target);
+      encode_vector_packed_interbyte(target);
+    }
+
+    void
+    polar_encoder::encode_vector_packed_subbyte(unsigned char* target)
+    {
+      int shift_vals[3] = {1, 2, 4};
+      int bit_masks[3] = {0xaa, 0xcc, 0xF0};
+      int num_bytes_per_block = d_block_size >> 3;
+      for(int stage = 0; stage < 3; stage++){
+        unsigned char* it = target;
+        for(int byte = 0; byte < num_bytes_per_block; byte++){
+          *it ^= bit_masks[stage] & (*it << shift_vals[stage]);
+          it++;
+        }
+      }
+    }
+
+    void
+    polar_encoder::encode_vector_packed_interbyte(unsigned char* target)
+    {
+      int branch_byte_size = 1;
+      unsigned char* pos;
+      int n_branches = d_block_size >> 4;
+      for(int stage = 3; stage < d_block_power; stage++){
+        pos = target;
+        for(int branch = 0; branch < n_branches; branch++){
+          for(int block = 0; block < branch_byte_size; block++){
+            *(pos + block) ^= *(pos + block + branch_byte_size);
+          }
+          pos += branch_byte_size << 1;
+        }
+        n_branches >>= 1;
+        branch_byte_size <<= 1;
       }
     }
 

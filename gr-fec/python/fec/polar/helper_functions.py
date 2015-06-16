@@ -102,8 +102,11 @@ def main():
     k = n // 2
     eta = 0.3
 
-    frozen_bit_positions = get_frozen_bit_positions('.', 256, 128, 0.11)
-    print(frozen_bit_positions)
+    # frozen_bit_positions = get_frozen_bit_positions('.', 256, 128, 0.11)
+    # print(frozen_bit_positions)
+
+    print(np.arange(16))
+    print bit_reverse_vector(np.arange(16), 4)
 
 if __name__ == '__main__':
     main()

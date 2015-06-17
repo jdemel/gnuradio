@@ -67,12 +67,44 @@ namespace gr {
       int k = 8;
       d_unpacker = new gr::blocks::kernel::unpack_k_bits(k);
       d_packer = new gr::blocks::kernel::pack_k_bits(k);
+
+      setup_frozen_bit_inserter();
+    }
+
+    void
+    polar_encoder::setup_frozen_bit_inserter()
+    {
+      d_block_array = (unsigned char*) volk_malloc(d_block_size, volk_get_alignment());
+      d_frozen_bit_prototype = (unsigned char*) volk_malloc(d_block_size, volk_get_alignment());
+      memset(d_frozen_bit_prototype, 0, d_block_size);
+      for(unsigned int i = 0; i < d_frozen_bit_positions.size(); i++){
+        int rev_pos = (int) bit_reverse((long) d_frozen_bit_positions.at(i), d_block_power);
+        unsigned char frozen_bit = (unsigned char) d_frozen_bit_values.at(i);
+        insert_unpacked_bit_into_packed_array_at_position(d_frozen_bit_prototype, frozen_bit, rev_pos);
+      }
+      print_frozen_bit_prototype();
+
+      int num_frozen_bit = 0;
+      for(int i = 0; i < d_block_size; i++){
+        int frozen_pos = d_frozen_bit_positions.at(num_frozen_bit);
+        if(i != frozen_pos){
+          d_info_bit_positions.push_back((int) bit_reverse((long) i, d_block_power));
+        }
+        else{
+          num_frozen_bit++;
+          num_frozen_bit = std::min(num_frozen_bit, (int) (d_frozen_bit_positions.size() - 1));
+        }
+      }
+
     }
 
     polar_encoder::~polar_encoder()
     {
       delete d_unpacker;
       delete d_packer;
+
+      volk_free(d_block_array);
+      volk_free(d_frozen_bit_prototype);
     }
 
     void
@@ -81,13 +113,16 @@ namespace gr {
       const char *in = (const char *) in_buffer;
       char *out = (char *) out_buffer;
       char* uncoded_arr = (char*) volk_malloc(sizeof(char) * d_block_size, volk_get_alignment());
-      insert_frozen_bits(uncoded_arr, in);
-      bit_reverse_vector(out, uncoded_arr);
+//      insert_frozen_bits(uncoded_arr, in);
+//      bit_reverse_vector(out, uncoded_arr);
 //      encode_vector(out);
 
-      unsigned char* temp = (unsigned char*) volk_malloc(d_block_size, volk_get_alignment());
       int num_bytes = d_block_size >> 3;
-      d_packer->pack(temp, (unsigned char*) out, num_bytes);
+      unsigned char* temp = (unsigned char*) volk_malloc(num_bytes, volk_get_alignment());
+      insert_unpacked_frozen_bits_and_reverse(temp, (unsigned char*) in);
+//      d_packer->pack(temp, (unsigned char*) out, num_bytes);
+
+
       encode_vector_packed(temp);
       d_unpacker->unpack((unsigned char*) out, temp, num_bytes);
       volk_free(temp);
@@ -158,6 +193,45 @@ namespace gr {
         n_branches >>= 1;
         branch_byte_size <<= 1;
       }
+    }
+
+    void
+    polar_encoder::insert_unpacked_frozen_bits_and_reverse(unsigned char* target,
+                                                           const unsigned char* input)
+    {
+      memcpy(target, d_frozen_bit_prototype, d_block_size >> 3);
+      for(unsigned int i = 0; i < d_info_bit_positions.size(); i++){
+        insert_unpacked_bit_into_packed_array_at_position(target, *input, d_info_bit_positions.at(i));
+        input++;
+      }
+    }
+
+    void
+    polar_encoder::insert_unpacked_bit_into_packed_array_at_position(unsigned char* target,
+                                                                     const unsigned char bit,
+                                                                     int pos)
+    {
+      int byte_pos = pos >> 3;
+      int bit_pos = pos & 0x7;
+      *(target + byte_pos) ^= bit << (7 - bit_pos);
+    }
+
+    void
+    polar_encoder::print_frozen_bit_prototype()
+    {
+      unsigned char* temp = (unsigned char*) volk_malloc(sizeof(unsigned char) * d_block_size, volk_get_alignment());
+      d_unpacker->unpack((unsigned char*) temp, d_frozen_bit_prototype, d_block_size >> 3);
+//      std::vector<int> result;
+
+      std::cout << "[";
+      for(int i = 0; i < d_block_size; i++){
+        std::cout << (int) *(temp + i) << " ";
+//        result.push_back((int) *temp);
+//        temp++;
+      }
+      std::cout << "]" << std::endl;
+
+      volk_free(temp);
     }
 
     long

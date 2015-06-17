@@ -29,6 +29,7 @@ from extended_encoder import extended_encoder
 from extended_decoder import extended_decoder
 from polar.encoder import PolarEncoder
 from polar.helper_functions import get_frozen_bit_positions
+from polar.helper_functions import bit_reverse_vector
 
 
 class test_polar_encoder(gr_unittest.TestCase):
@@ -110,6 +111,24 @@ class test_polar_encoder(gr_unittest.TestCase):
         print(res)
         print(ref)
         self.assertTupleEqual(tuple(res), tuple(ref))
+
+    def test_004_packed_bits(self):
+        num_blocks = 30
+        block_power = 5
+        block_size = 2 ** block_power
+        num_info_bits = 16
+        num_frozen_bits = block_size - num_info_bits
+        frozen_bit_positions = get_frozen_bit_positions('/home/johannes/src/gnuradio-polar/gr-fec/python/fec/polar', block_size, num_frozen_bits, 0.11)
+        frozen_bit_values = np.array([1] * num_frozen_bits,)
+        rev_frozen_bit_positions = bit_reverse_vector(frozen_bit_positions, block_power)
+        python_frozen_bit_prototype = np.zeros(block_size, dtype=int)
+        python_frozen_bit_prototype[rev_frozen_bit_positions] = frozen_bit_values
+
+
+        python_encoder = PolarEncoder(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values)
+
+        polar_encoder = fec.polar_encoder.make(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values)
+
 
 
 

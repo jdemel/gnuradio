@@ -48,10 +48,7 @@ namespace gr {
     {
     public:
       static generic_encoder::sptr make(int block_size, int num_info_bits, std::vector<int> frozen_bit_positions, std::vector<char> frozen_bit_values);
-
       ~polar_encoder();
-
-
 
       // FECAPI
       void generic_work(void *in_buffer, void *out_buffer);
@@ -66,14 +63,23 @@ namespace gr {
       int d_block_power;
       int d_num_info_bits; // mostly abbreviated by 'K'
       std::vector<int> d_frozen_bit_positions;
+      std::vector<int> d_info_bit_positions;
       std::vector<char> d_frozen_bit_values;
 
       void insert_frozen_bits(char* target, const char* input);
       void bit_reverse_vector(char* target, const char* input);
+
+      void setup_frozen_bit_inserter();
+      void insert_unpacked_frozen_bits_and_reverse(unsigned char* target, const unsigned char* input);
+      unsigned char* d_block_array;
+      unsigned char* d_frozen_bit_prototype;
+      void insert_unpacked_bit_into_packed_array_at_position(unsigned char* target, const unsigned char bit, int pos);
+
       void encode_vector(char* target);
       void encode_vector_packed(unsigned char* target);
       void encode_vector_packed_subbyte(unsigned char* target);
       void encode_vector_packed_interbyte(unsigned char* target);
+      void print_frozen_bit_prototype();
 
       // helper functions
       long bit_reverse(long value, int active_bits);

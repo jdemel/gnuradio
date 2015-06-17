@@ -66,23 +66,29 @@ namespace gr {
       std::vector<int> d_info_bit_positions;
       std::vector<char> d_frozen_bit_values;
 
+      // for unpacked bits an 'easier-to-grasp' algorithm.
       void insert_frozen_bits(char* target, const char* input);
       void bit_reverse_vector(char* target, const char* input);
-
-      void setup_frozen_bit_inserter();
-      void insert_unpacked_frozen_bits_and_reverse(unsigned char* target, const unsigned char* input);
-      unsigned char* d_block_array;
-      unsigned char* d_frozen_bit_prototype;
-      void insert_unpacked_bit_into_packed_array_at_position(unsigned char* target, const unsigned char bit, int pos);
-
       void encode_vector(char* target);
-      void encode_vector_packed(unsigned char* target);
-      void encode_vector_packed_subbyte(unsigned char* target);
-      void encode_vector_packed_interbyte(unsigned char* target);
-      void print_frozen_bit_prototype();
+
+      // c'tor method for packed algorithm setup.
+      void setup_frozen_bit_inserter();
+
+      // methods insert input bits and frozen bits into packed array for encoding
+      unsigned char* d_block_array; // use for encoding
+      unsigned char* d_frozen_bit_prototype; // packed frozen bits are written onto it and later copies are used.
+      void insert_unpacked_frozen_bits_and_reverse(unsigned char* target, const unsigned char* input) const;
+      void insert_unpacked_bit_into_packed_array_at_position(unsigned char* target, const unsigned char bit, int pos) const;
+
+      // packed encoding methods
+      void encode_vector_packed(unsigned char* target) const;
+      void encode_vector_packed_subbyte(unsigned char* target) const;
+      void encode_packed_byte(unsigned char* target) const;
+      void encode_vector_packed_interbyte(unsigned char* target) const;
 
       // helper functions
-      long bit_reverse(long value, int active_bits);
+      long bit_reverse(long value, int active_bits) const;
+      void print_packed_bit_array(const unsigned char* printed_array, const int num_bytes) const;
 
       gr::blocks::kernel::pack_k_bits *d_packer;
       gr::blocks::kernel::unpack_k_bits *d_unpacker;

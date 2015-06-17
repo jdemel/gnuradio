@@ -117,9 +117,16 @@ namespace gr {
       const unsigned char *in = (const unsigned char*) in_buffer;
       unsigned char *out = (unsigned char*) out_buffer;
 
-      insert_unpacked_frozen_bits_and_reverse(d_block_array, in);
+      d_packer->pack(out, in, d_block_size >> 3);
+//      insert_unpacked_frozen_bits_and_reverse(d_block_array, in);
+      insert_packed_frozen_bits_and_reverse(d_block_array, out);
       encode_vector_packed(d_block_array);
       d_unpacker->unpack(out, d_block_array, d_block_size >> 3);
+
+//      insert_frozen_bits(d_block_array, in);
+//      bit_reverse_vector(out, d_block_array);
+//      encode_vector(out);
+
     }
 
     void
@@ -133,9 +140,10 @@ namespace gr {
     polar_encoder::encode_vector_packed_subbyte(unsigned char* target) const
     {
       int num_bytes_per_block = d_block_size >> 3;
-      for(int byte = 0; byte < num_bytes_per_block; byte++){
+      while(num_bytes_per_block){
         encode_packed_byte(target);
-        target++;
+        ++target;
+        --num_bytes_per_block;
       }
     }
 
@@ -155,14 +163,22 @@ namespace gr {
       int branch_byte_size = 1;
       unsigned char* pos;
       int n_branches = d_block_size >> 4;
-      for(int stage = 3; stage < d_block_power; stage++){
+      int byte = 0;
+      for(int stage = 3; stage < d_block_power; ++stage){
         pos = target;
-        for(int branch = 0; branch < n_branches; branch++){
-          for(int block = 0; block < branch_byte_size; block++){
-            *(pos + block) ^= *(pos + block + branch_byte_size);
+
+        for(int branch = 0; branch < n_branches; ++branch){
+
+          byte = 0;
+          while(byte < branch_byte_size){
+            *pos ^= *(pos + branch_byte_size);
+            ++pos;
+            ++byte;
           }
-          pos += branch_byte_size << 1;
+
+          pos += branch_byte_size;
         }
+
         n_branches >>= 1;
         branch_byte_size <<= 1;
       }
@@ -173,16 +189,34 @@ namespace gr {
                                                            const unsigned char* input) const
     {
       memcpy(target, d_frozen_bit_prototype, d_block_size >> 3);
-      for(unsigned int i = 0; i < d_info_bit_positions.size(); i++){
-        insert_unpacked_bit_into_packed_array_at_position(target, *input, d_info_bit_positions.at(i));
-        input++;
+      const int* info_bit_positions_ptr = &d_info_bit_positions[0];
+      const unsigned char* end_input = input + d_num_info_bits;
+      int bit_pos = 7;
+      while(input < end_input){
+        insert_packet_bit_into_packed_array_at_position(target, *input++, *info_bit_positions_ptr++, bit_pos);
+      }
+    }
+
+    void
+    polar_encoder::insert_packed_frozen_bits_and_reverse(unsigned char* target,
+                                                         const unsigned char* input) const
+    {
+      memcpy(target, d_frozen_bit_prototype, d_block_size >> 3);
+      const int* info_bit_positions_ptr = &d_info_bit_positions[0];
+      int bit_num = 0;
+      while(bit_num < d_num_info_bits){
+        insert_packet_bit_into_packed_array_at_position(target, *input, *info_bit_positions_ptr++, bit_num % 8);
+        ++bit_num;
+        if(bit_num % 8 == 0){
+          ++input;
+        }
       }
     }
 
     void
     polar_encoder::insert_unpacked_bit_into_packed_array_at_position(unsigned char* target,
                                                                      const unsigned char bit,
-                                                                     int pos) const
+                                                                     const int pos) const
     {
       int byte_pos = pos >> 3;
       int bit_pos = pos & 0x7;
@@ -190,13 +224,34 @@ namespace gr {
     }
 
     void
+    polar_encoder::insert_packet_bit_into_packed_array_at_position(unsigned char* target,
+                                                                   const unsigned char bit,
+                                                                   const int target_pos,
+                                                                   const int bit_pos) const
+    {
+      const int bit_num = bit_pos;
+      const int target_byte_pos = target_pos >> 3;
+      const int target_left_shift = 7 - (target_pos & 0x07);
+      const int bit_right_shift = 7 - bit_pos;
+
+      const unsigned char assignee = (bit >> bit_right_shift) & 0x01;
+      *(target + target_byte_pos) ^= assignee << target_left_shift;
+
+
+      unsigned char xor_bit = assignee << target_left_shift;
+//      std::cout << "bit_num: " << bit_num << "\tbit:" << int(bit) << "\ttarget_pos: " << target_pos << "\tbit_pos " << bit_pos << "\txor_bit " << int(xor_bit) << "\tleft " << target_left_shift << "\tright " << bit_right_shift << std::endl;
+    }
+
+    void
     polar_encoder::print_packed_bit_array(const unsigned char* printed_array, const int num_bytes) const
     {
-      unsigned char* temp = (unsigned char*) volk_malloc(num_bytes << 3, volk_get_alignment());
+      int num_bits = num_bytes << 3;
+      unsigned char* temp = (unsigned char*) volk_malloc(num_bits, volk_get_alignment());
       d_unpacker->unpack(temp, printed_array, num_bytes);
 
+
       std::cout << "[";
-      for(int i = 0; i < d_block_size; i++){
+      for(int i = 0; i < num_bits; i++){
         std::cout << (int) *(temp + i) << " ";
       }
       std::cout << "]" << std::endl;
@@ -205,7 +260,7 @@ namespace gr {
     }
 
     void
-    polar_encoder::insert_frozen_bits(char* target, const char* input)
+    polar_encoder::insert_frozen_bits(unsigned char* target, const unsigned char* input)
     {
       int frozen_num = 0;
       int num_frozen_bits = d_block_size - d_num_info_bits;
@@ -223,7 +278,7 @@ namespace gr {
     }
 
     void
-    polar_encoder::bit_reverse_vector(char* target, const char* input)
+    polar_encoder::bit_reverse_vector(unsigned char* target, const unsigned char* input)
     {
       for(int i = 0; i < d_block_size; i++){
         target[bit_reverse(long(i), d_block_power)] = input[i];
@@ -231,7 +286,7 @@ namespace gr {
     }
 
     void
-    polar_encoder::encode_vector(char* target)
+    polar_encoder::encode_vector(unsigned char* target)
     {
       for(int stage = 0; stage < d_block_power; stage++){
         int n_branches = pow(2, stage);

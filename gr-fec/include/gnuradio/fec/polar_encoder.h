@@ -67,9 +67,9 @@ namespace gr {
       std::vector<char> d_frozen_bit_values;
 
       // for unpacked bits an 'easier-to-grasp' algorithm.
-      void insert_frozen_bits(char* target, const char* input);
-      void bit_reverse_vector(char* target, const char* input);
-      void encode_vector(char* target);
+      void insert_frozen_bits(unsigned char* target, const unsigned char* input);
+      void bit_reverse_vector(unsigned char* target, const unsigned char* input);
+      void encode_vector(unsigned char* target);
 
       // c'tor method for packed algorithm setup.
       void setup_frozen_bit_inserter();
@@ -78,7 +78,9 @@ namespace gr {
       unsigned char* d_block_array; // use for encoding
       unsigned char* d_frozen_bit_prototype; // packed frozen bits are written onto it and later copies are used.
       void insert_unpacked_frozen_bits_and_reverse(unsigned char* target, const unsigned char* input) const;
-      void insert_unpacked_bit_into_packed_array_at_position(unsigned char* target, const unsigned char bit, int pos) const;
+      void insert_packed_frozen_bits_and_reverse(unsigned char* target, const unsigned char* input) const;
+      void insert_unpacked_bit_into_packed_array_at_position(unsigned char* target, const unsigned char bit, const int pos) const;
+      void insert_packet_bit_into_packed_array_at_position(unsigned char* target, const unsigned char bit, const int target_pos, const int bit_pos) const;
 
       // packed encoding methods
       void encode_vector_packed(unsigned char* target) const;

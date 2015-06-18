@@ -208,6 +208,49 @@
     </param>
   </block>
   <block>
+    <key>variable_polar_decoder_sc_def</key>
+    <param>
+      <key>num_info_bits</key>
+      <value>128</value>
+    </param>
+    <param>
+      <key>block_size</key>
+      <value>256</value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>frozen_bit_positions</key>
+      <value>range(128)</value>
+    </param>
+    <param>
+      <key>frozen_bit_values</key>
+      <value>[0] * 128</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(864, 480)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>polar_decoder</value>
+    </param>
+    <param>
+      <key>is_packed</key>
+      <value>False</value>
+    </param>
+  </block>
+  <block>
     <key>variable_polar_encoder_def</key>
     <param>
       <key>num_info_bits</key>
@@ -458,7 +501,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1256, 368)</value>
+      <value>(1408, 312)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -474,7 +517,7 @@
     </param>
     <param>
       <key>num_inputs</key>
-      <value>1</value>
+      <value>2</value>
     </param>
     <param>
       <key>vlen</key>
@@ -583,15 +626,15 @@
     </param>
     <param>
       <key>decoder</key>
-      <value>cc_decoder</value>
+      <value>polar_decoder</value>
     </param>
     <param>
       <key>_enabled</key>
-      <value>False</value>
+      <value>True</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1040, 251)</value>
+      <value>(896, 251)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -732,7 +775,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1432, 235)</value>
+      <value>(1464, 235)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -1096,10 +1139,10 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>fec_generic_encoder_0</source_block_id>
-    <sink_block_id>blocks_char_to_float_0</sink_block_id>
+    <source_block_id>fec_generic_decoder_0</source_block_id>
+    <sink_block_id>blocks_null_sink_0</sink_block_id>
     <source_key>0</source_key>
-    <sink_key>0</sink_key>
+    <sink_key>1</sink_key>
   </connection>
   <connection>
     <source_block_id>fec_generic_encoder_0</source_block_id>

@@ -38,13 +38,16 @@ namespace gr {
 
     generic_encoder::sptr
     polar_encoder::make(int block_size, int num_info_bits, std::vector<int> frozen_bit_positions,
-                        std::vector<char> frozen_bit_values)
+                        std::vector<char> frozen_bit_values, bool is_packed)
     {
-      return generic_encoder::sptr(new polar_encoder(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values));
+      return generic_encoder::sptr(new polar_encoder(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values, is_packed));
     }
 
-    polar_encoder::polar_encoder(int block_size, int num_info_bits, std::vector<int> frozen_bit_positions, std::vector<char> frozen_bit_values):
+    polar_encoder::polar_encoder(int block_size, int num_info_bits, std::vector<int> frozen_bit_positions, std::vector<char> frozen_bit_values, bool is_packed):
         d_block_size(block_size),
+        d_input_size(num_info_bits / (is_packed ? 8 : 1)),
+        d_output_size(block_size / (is_packed ? 8 : 1)),
+        d_is_packed(is_packed),
         d_num_info_bits(num_info_bits),
         d_frozen_bit_positions(frozen_bit_positions),
         d_frozen_bit_values(frozen_bit_values)
@@ -117,16 +120,19 @@ namespace gr {
       const unsigned char *in = (const unsigned char*) in_buffer;
       unsigned char *out = (unsigned char*) out_buffer;
 
-      d_packer->pack(out, in, d_block_size >> 3);
-//      insert_unpacked_frozen_bits_and_reverse(d_block_array, in);
-      insert_packed_frozen_bits_and_reverse(d_block_array, out);
-      encode_vector_packed(d_block_array);
-      d_unpacker->unpack(out, d_block_array, d_block_size >> 3);
+      if(d_is_packed){
+        insert_packed_frozen_bits_and_reverse(out, in);
+        encode_vector_packed(out);
+      }
+      else{
+        insert_unpacked_frozen_bits_and_reverse(d_block_array, in);
+        encode_vector_packed(d_block_array);
+        d_unpacker->unpack(out, d_block_array, d_block_size >> 3);
+      }
 
 //      insert_frozen_bits(d_block_array, in);
 //      bit_reverse_vector(out, d_block_array);
 //      encode_vector(out);
-
     }
 
     void
@@ -204,11 +210,15 @@ namespace gr {
       memcpy(target, d_frozen_bit_prototype, d_block_size >> 3);
       const int* info_bit_positions_ptr = &d_info_bit_positions[0];
       int bit_num = 0;
+      unsigned char byte = *input;
+      int bit_pos;
       while(bit_num < d_num_info_bits){
-        insert_packet_bit_into_packed_array_at_position(target, *input, *info_bit_positions_ptr++, bit_num % 8);
+        bit_pos = *info_bit_positions_ptr++;
+        insert_packet_bit_into_packed_array_at_position(target, byte, bit_pos, bit_num % 8);
         ++bit_num;
         if(bit_num % 8 == 0){
           ++input;
+          byte = *input;
         }
       }
     }
@@ -229,17 +239,7 @@ namespace gr {
                                                                    const int target_pos,
                                                                    const int bit_pos) const
     {
-      const int bit_num = bit_pos;
-      const int target_byte_pos = target_pos >> 3;
-      const int target_left_shift = 7 - (target_pos & 0x07);
-      const int bit_right_shift = 7 - bit_pos;
-
-      const unsigned char assignee = (bit >> bit_right_shift) & 0x01;
-      *(target + target_byte_pos) ^= assignee << target_left_shift;
-
-
-      unsigned char xor_bit = assignee << target_left_shift;
-//      std::cout << "bit_num: " << bit_num << "\tbit:" << int(bit) << "\ttarget_pos: " << target_pos << "\tbit_pos " << bit_pos << "\txor_bit " << int(xor_bit) << "\tleft " << target_left_shift << "\tright " << bit_right_shift << std::endl;
+      insert_unpacked_bit_into_packed_array_at_position(target, (bit >> (7 - bit_pos)) & 0x01, target_pos);
     }
 
     void

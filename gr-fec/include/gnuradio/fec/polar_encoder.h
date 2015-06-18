@@ -47,20 +47,22 @@ namespace gr {
     class FEC_API polar_encoder : public generic_encoder
     {
     public:
-      static generic_encoder::sptr make(int block_size, int num_info_bits, std::vector<int> frozen_bit_positions, std::vector<char> frozen_bit_values);
+      static generic_encoder::sptr make(int block_size, int num_info_bits, std::vector<int> frozen_bit_positions, std::vector<char> frozen_bit_values, bool is_packed = false);
       ~polar_encoder();
 
       // FECAPI
       void generic_work(void *in_buffer, void *out_buffer);
       double rate(){return (1.0 * get_input_size() / get_output_size());};
-      int get_input_size(){return d_num_info_bits;};
-      int get_output_size(){return d_block_size;};
+      int get_input_size(){return d_input_size;};
+      int get_output_size(){return d_output_size;};
       bool set_frame_size(unsigned int frame_size){return false;};
 
     private:
-      polar_encoder(int block_size, int num_info_bits, std::vector<int> frozen_bit_positions, std::vector<char> frozen_bit_values);
+      polar_encoder(int block_size, int num_info_bits, std::vector<int> frozen_bit_positions, std::vector<char> frozen_bit_values, bool is_packed);
       int d_block_size; // depending on paper called 'N' or 'm'
       int d_block_power;
+      int d_input_size, d_output_size;
+      bool d_is_packed;
       int d_num_info_bits; // mostly abbreviated by 'K'
       std::vector<int> d_frozen_bit_positions;
       std::vector<int> d_info_bit_positions;

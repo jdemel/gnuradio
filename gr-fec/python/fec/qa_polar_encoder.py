@@ -61,14 +61,20 @@ class test_polar_encoder(gr_unittest.TestCase):
         frozen_bit_values = np.array([0] * num_frozen_bits,)
         python_encoder = PolarEncoder(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values)
 
-        polar_encoder = fec.polar_encoder.make(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values)
+        is_packed = False
+        polar_encoder = fec.polar_encoder.make(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values, is_packed)
 
         data = np.ones(num_info_bits, dtype=int)
         src = blocks.vector_source_b(data, False)
+        packer = blocks.pack_k_bits_bb(8)
         enc_block = extended_encoder(polar_encoder, None, '11')
+        unpacker = blocks.unpack_k_bits_bb(8)
         snk = blocks.vector_sink_b(1)
 
-        self.tb.connect(src, enc_block, snk)
+        if is_packed:
+            self.tb.connect(src, packer, enc_block, unpacker, snk)
+        else:
+            self.tb.connect(src, enc_block, snk)
         self.tb.run()
 
         res = np.array(snk.data()).astype(dtype=int)
@@ -79,6 +85,7 @@ class test_polar_encoder(gr_unittest.TestCase):
         self.assertTupleEqual(tuple(res), tuple(penc))
 
     def test_003_big_input(self):
+        is_packed = False
         num_blocks = 30
         block_size = 256
         num_info_bits = 128
@@ -87,7 +94,7 @@ class test_polar_encoder(gr_unittest.TestCase):
         frozen_bit_values = np.array([0] * num_frozen_bits,)
         python_encoder = PolarEncoder(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values)
 
-        polar_encoder = fec.polar_encoder.make(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values)
+        polar_encoder = fec.polar_encoder.make(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values, is_packed)
 
         data = np.array([], dtype=int)
         ref = np.array([], dtype=int)
@@ -99,10 +106,15 @@ class test_polar_encoder(gr_unittest.TestCase):
 
 
         src = blocks.vector_source_b(data, False)
+        packer = blocks.pack_k_bits_bb(8)
         enc_block = extended_encoder(polar_encoder, None, '11')
+        unpacker = blocks.unpack_k_bits_bb(8)
         snk = blocks.vector_sink_b(1)
 
-        self.tb.connect(src, enc_block, snk)
+        if is_packed:
+            self.tb.connect(src, packer, enc_block, unpacker, snk)
+        else:
+            self.tb.connect(src, enc_block, snk)
         self.tb.run()
 
         res = np.array(snk.data()).astype(dtype=int)
@@ -111,23 +123,6 @@ class test_polar_encoder(gr_unittest.TestCase):
         print(res)
         print(ref)
         self.assertTupleEqual(tuple(res), tuple(ref))
-
-    def test_004_packed_bits(self):
-        num_blocks = 30
-        block_power = 5
-        block_size = 2 ** block_power
-        num_info_bits = 16
-        num_frozen_bits = block_size - num_info_bits
-        frozen_bit_positions = get_frozen_bit_positions('/home/johannes/src/gnuradio-polar/gr-fec/python/fec/polar', block_size, num_frozen_bits, 0.11)
-        frozen_bit_values = np.array([1] * num_frozen_bits,)
-        rev_frozen_bit_positions = bit_reverse_vector(frozen_bit_positions, block_power)
-        python_frozen_bit_prototype = np.zeros(block_size, dtype=int)
-        python_frozen_bit_prototype[rev_frozen_bit_positions] = frozen_bit_values
-
-
-        python_encoder = PolarEncoder(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values)
-
-        polar_encoder = fec.polar_encoder.make(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values)
 
 
 

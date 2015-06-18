@@ -92,7 +92,7 @@ namespace gr {
        * The child class MAY implement this function. If not
        * reimplemented, it returns "none".
        */
-      const char* get_output_conversion(){return d_is_packed ? "unpack" : "none";};
+      const char* get_output_conversion(){return d_is_packed ? "packed_bits" : "none";};
 
     private:
       polar_encoder(int block_size, int num_info_bits, std::vector<int> frozen_bit_positions, std::vector<char> frozen_bit_values, bool is_packed);

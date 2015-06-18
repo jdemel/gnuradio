@@ -56,6 +56,43 @@ namespace gr {
       int get_input_size(){return d_input_size;};
       int get_output_size(){return d_output_size;};
       bool set_frame_size(unsigned int frame_size){return false;};
+      /*!
+       * Set up a conversion type required to setup the data properly
+       * for this encoder. The encoder itself will not implement the
+       * conversion and expects an external wrapper (e.g.,
+       * fec.extended_encoder) to read this value and "do the right
+       * thing" to format the data.
+       *
+       * The default behavior is 'none', which means no conversion is
+       * required. Whatever the get_input_item_size() value returns,
+       * the input is expected to conform directly to this. Generally,
+       * this means unpacked bytes.
+       *
+       * If 'pack', the block expects the inputs to be packed
+       * bytes. The wrapper should implement a
+       * gr::blocks::pack_k_bits_bb(8) block for this.
+       *
+       * The child class MAY implement this function. If not
+       * reimplemented, it returns "none".
+       */
+      const char* get_input_conversion(){return d_is_packed ? "pack" : "none";};
+
+      /*!
+       * Set up a conversion type required to understand the output
+       * style of this encoder. Generally an encoder will produce
+       * unpacked bytes with a bit set in the LSB.
+       *
+       * The default behavior is 'none', which means no conversion is
+       * required and the encoder produces unpacked bytes.
+       *
+       * If 'packed_bits', the block produces packed bits and the
+       * wrapper should unpack these (using, for instance,
+       * gr::block::unpack_k_bits_bb(8)).
+       *
+       * The child class MAY implement this function. If not
+       * reimplemented, it returns "none".
+       */
+      const char* get_output_conversion(){return d_is_packed ? "unpack" : "none";};
 
     private:
       polar_encoder(int block_size, int num_info_bits, std::vector<int> frozen_bit_positions, std::vector<char> frozen_bit_values, bool is_packed);

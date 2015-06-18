@@ -55,8 +55,34 @@ class test_polar_decoder_sc(gr_unittest.TestCase):
         self.assertFloatTuplesAlmostEqual((float(num_info_bits) / block_size, ), (polar_decoder.rate(), ))
         self.assertFalse(polar_decoder.set_frame_size(10))
 
+    def test_002_one_vector(self):
+        print "test"
+        is_packed = False
+        block_size = 16
+        num_info_bits = 8
+        num_frozen_bits = block_size - num_info_bits
+        frozen_bit_positions = get_frozen_bit_positions('polar', block_size, num_frozen_bits, 0.11)
+        frozen_bit_values = np.array([0] * num_frozen_bits,)
 
+        python_decoder = PolarDecoder(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values)
 
+        data = np.ones(block_size, dtype=int)
+
+        polar_decoder = fec.polar_decoder_sc.make(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values, is_packed)
+        src = blocks.vector_source_f(data, False)
+        dec_block = extended_decoder(polar_decoder, None)
+        snk = blocks.vector_sink_b(1)
+
+        self.tb.connect(src, dec_block)
+        self.tb.connect(dec_block, snk)
+        self.tb.run()
+
+        res = np.array(snk.data()).astype(dtype=int)
+
+        ref = python_decoder.decode(data)
+
+        print(res)
+        print(ref)
 
 
 if __name__ == '__main__':

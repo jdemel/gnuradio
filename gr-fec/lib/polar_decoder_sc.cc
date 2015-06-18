@@ -56,6 +56,9 @@ namespace gr {
     void
     polar_decoder_sc::generic_work(void* in_buffer, void* out_buffer)
     {
+      const unsigned char *in = (const unsigned char*) in_buffer;
+      unsigned char *out = (unsigned char*) out_buffer;
+      memcpy(out, in, d_num_info_bits);
     }
 
   } /* namespace fec */

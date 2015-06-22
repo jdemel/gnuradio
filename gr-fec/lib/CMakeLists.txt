@@ -81,8 +81,9 @@ list(APPEND gnuradio_fec_sources
   tpc_common.cc
   tpc_decoder.cc
   tpc_encoder.cc
-    polar_encoder.cc
-    polar_decoder_sc.cc
+  polar_encoder.cc
+  polar_decoder_sc.cc
+    polar_common.cc
 )
 
 #Add Windows DLL resource file if using MSVC

@@ -24,6 +24,7 @@ from gnuradio import gr, gr_unittest, blocks
 import fec_swig as fec
 from _qa_helper import _qa_helper
 import numpy as np
+import os
 
 from extended_encoder import extended_encoder
 from extended_decoder import extended_decoder
@@ -32,6 +33,8 @@ from polar.decoder import PolarDecoder
 from polar.helper_functions import get_frozen_bit_positions
 # from polar.helper_functions import bit_reverse_vector
 
+# print('PID:', os.getpid())
+# raw_input('tell me smth')
 
 class test_polar_decoder_sc(gr_unittest.TestCase):
 
@@ -48,28 +51,30 @@ class test_polar_decoder_sc(gr_unittest.TestCase):
         frozen_bit_positions = np.arange(block_size - num_info_bits)
         frozen_bit_values = np.array([],)
 
-        polar_decoder = fec.polar_decoder_sc.make(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values)
+        polar_decoder = fec.polar_decoder_sc.make(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values, is_packed)
 
-        self.assertEqual(block_size, polar_decoder.get_output_size())
-        self.assertEqual(num_info_bits, polar_decoder.get_input_size())
-        self.assertFloatTuplesAlmostEqual((float(num_info_bits) / block_size, ), (polar_decoder.rate(), ))
+        self.assertEqual(num_info_bits, polar_decoder.get_output_size())
+        self.assertEqual(block_size, polar_decoder.get_input_size())
+        self.assertFloatTuplesAlmostEqual((float(block_size) / num_info_bits, ), (polar_decoder.rate(), ))
         self.assertFalse(polar_decoder.set_frame_size(10))
 
     def test_002_one_vector(self):
         print "test"
         is_packed = False
-        block_size = 16
-        num_info_bits = 8
+        block_size = 8
+        num_info_bits = 4
         num_frozen_bits = block_size - num_info_bits
         frozen_bit_positions = get_frozen_bit_positions('polar', block_size, num_frozen_bits, 0.11)
         frozen_bit_values = np.array([0] * num_frozen_bits,)
 
         python_decoder = PolarDecoder(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values)
 
-        data = np.ones(block_size, dtype=int)
+        # data = np.ones(block_size, dtype=int)
+        data = np.array([0, 1, 1, 0, 1, 0, 1, 0], dtype=int)
+        gr_data = -2.0 * data + 1.0
 
         polar_decoder = fec.polar_decoder_sc.make(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values, is_packed)
-        src = blocks.vector_source_f(data, False)
+        src = blocks.vector_source_f(gr_data, False)
         dec_block = extended_decoder(polar_decoder, None)
         snk = blocks.vector_sink_b(1)
 
@@ -81,6 +86,7 @@ class test_polar_decoder_sc(gr_unittest.TestCase):
 
         ref = python_decoder.decode(data)
 
+        print(data)
         print(res)
         print(ref)
 

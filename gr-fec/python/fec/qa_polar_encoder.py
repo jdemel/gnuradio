@@ -22,14 +22,11 @@
 
 from gnuradio import gr, gr_unittest, blocks
 import fec_swig as fec
-from _qa_helper import _qa_helper
 import numpy as np
 
 from extended_encoder import extended_encoder
-from extended_decoder import extended_decoder
 from polar.encoder import PolarEncoder
 from polar.helper_functions import get_frozen_bit_positions
-from polar.helper_functions import bit_reverse_vector
 
 
 class test_polar_encoder(gr_unittest.TestCase):
@@ -66,14 +63,9 @@ class test_polar_encoder(gr_unittest.TestCase):
 
         data = np.ones(num_info_bits, dtype=int)
         src = blocks.vector_source_b(data, False)
-        packer = blocks.pack_k_bits_bb(8)
         enc_block = extended_encoder(polar_encoder, None, '11')
-        unpacker = blocks.unpack_k_bits_bb(8)
         snk = blocks.vector_sink_b(1)
 
-        # if is_packed:
-        #     self.tb.connect(src, packer, enc_block, unpacker, snk)
-        # else:
         self.tb.connect(src, enc_block, snk)
         self.tb.run()
         print(self.tb.edge_list())
@@ -85,45 +77,39 @@ class test_polar_encoder(gr_unittest.TestCase):
         print(penc)
         self.assertTupleEqual(tuple(res), tuple(penc))
 
-    # def test_003_big_input(self):
-    #     is_packed = False
-    #     num_blocks = 30
-    #     block_size = 256
-    #     num_info_bits = 128
-    #     num_frozen_bits = block_size - num_info_bits
-    #     frozen_bit_positions = get_frozen_bit_positions('/home/johannes/src/gnuradio-polar/gr-fec/python/fec/polar', block_size, num_frozen_bits, 0.11)
-    #     frozen_bit_values = np.array([0] * num_frozen_bits,)
-    #     python_encoder = PolarEncoder(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values)
-    #
-    #     polar_encoder = fec.polar_encoder.make(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values, is_packed)
-    #
-    #     data = np.array([], dtype=int)
-    #     ref = np.array([], dtype=int)
-    #
-    #     for i in range(num_blocks):
-    #         d = np.random.randint(2, size=num_info_bits)
-    #         data = np.append(data, d)
-    #         ref = np.append(ref, python_encoder.encode(d))
-    #
-    #
-    #     src = blocks.vector_source_b(data, False)
-    #     packer = blocks.pack_k_bits_bb(8)
-    #     enc_block = extended_encoder(polar_encoder, None, '11')
-    #     unpacker = blocks.unpack_k_bits_bb(8)
-    #     snk = blocks.vector_sink_b(1)
-    #
-    #     if is_packed:
-    #         self.tb.connect(src, packer, enc_block, unpacker, snk)
-    #     else:
-    #         self.tb.connect(src, enc_block, snk)
-    #     self.tb.run()
-    #
-    #     res = np.array(snk.data()).astype(dtype=int)
-    #     # penc = python_encoder.encode(data)
-    #
-    #     print(res)
-    #     print(ref)
-    #     self.assertTupleEqual(tuple(res), tuple(ref))
+    def test_003_big_input(self):
+        is_packed = True
+        num_blocks = 30
+        block_size = 256
+        num_info_bits = 128
+        num_frozen_bits = block_size - num_info_bits
+        frozen_bit_positions = get_frozen_bit_positions('/home/johannes/src/gnuradio-polar/gr-fec/python/fec/polar', block_size, num_frozen_bits, 0.11)
+        frozen_bit_values = np.array([0] * num_frozen_bits,)
+        python_encoder = PolarEncoder(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values)
+
+        polar_encoder = fec.polar_encoder.make(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values, is_packed)
+
+        data = np.array([], dtype=int)
+        ref = np.array([], dtype=int)
+
+        for i in range(num_blocks):
+            d = np.random.randint(2, size=num_info_bits)
+            data = np.append(data, d)
+            ref = np.append(ref, python_encoder.encode(d))
+
+
+        src = blocks.vector_source_b(data, False)
+        enc_block = extended_encoder(polar_encoder, None, '11')
+        snk = blocks.vector_sink_b(1)
+
+        self.tb.connect(src, enc_block, snk)
+        self.tb.run()
+
+        res = np.array(snk.data()).astype(dtype=int)
+
+        print(res)
+        print(ref)
+        self.assertTupleEqual(tuple(res), tuple(ref))
 
 
 

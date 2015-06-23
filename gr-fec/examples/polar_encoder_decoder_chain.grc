@@ -38,7 +38,7 @@
     </param>
     <param>
       <key>generate_options</key>
-      <value>no_gui</value>
+      <value>qt_gui</value>
     </param>
     <param>
       <key>id</key>
@@ -235,7 +235,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(864, 480)</value>
+      <value>(920, 459)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -380,6 +380,57 @@
     </param>
   </block>
   <block>
+    <key>blocks_add_const_vxx</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>const</key>
+      <value>1.0</value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1072, 160)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_add_const_vxx_0</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>float</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+  </block>
+  <block>
     <key>blocks_char_to_float</key>
     <param>
       <key>alias</key>
@@ -395,7 +446,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>False</value>
+      <value>True</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -427,7 +478,7 @@
     </param>
   </block>
   <block>
-    <key>blocks_head</key>
+    <key>blocks_char_to_float</key>
     <param>
       <key>alias</key>
       <value></value>
@@ -443,6 +494,53 @@
     <param>
       <key>_enabled</key>
       <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(904, 171)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_char_to_float_0_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>scale</key>
+      <value>-2.0</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_head</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>False</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -497,11 +595,11 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>False</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1408, 312)</value>
+      <value>(1408, 368)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -517,7 +615,7 @@
     </param>
     <param>
       <key>num_inputs</key>
-      <value>2</value>
+      <value>1</value>
     </param>
     <param>
       <key>vlen</key>
@@ -583,7 +681,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>False</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -611,7 +709,11 @@
     </param>
   </block>
   <block>
-    <key>fec_generic_decoder</key>
+    <key>fec_extended_decoder</key>
+    <param>
+      <key>ann</key>
+      <value>None</value>
+    </param>
     <param>
       <key>alias</key>
       <value></value>
@@ -625,7 +727,7 @@
       <value></value>
     </param>
     <param>
-      <key>decoder</key>
+      <key>decoder_list</key>
       <value>polar_decoder</value>
     </param>
     <param>
@@ -634,7 +736,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(896, 251)</value>
+      <value>(1008, 227)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -642,11 +744,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>fec_generic_decoder_0</value>
-    </param>
-    <param>
-      <key>itype</key>
-      <value>byte</value>
+      <value>fec_extended_decoder_0</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -657,8 +755,16 @@
       <value>0</value>
     </param>
     <param>
-      <key>otype</key>
-      <value>byte</value>
+      <key>puncpat</key>
+      <value>'11'</value>
+    </param>
+    <param>
+      <key>threadtype</key>
+      <value>capillary</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>fec_extended_decoder</value>
     </param>
   </block>
   <block>
@@ -771,7 +877,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>False</value>
+      <value>True</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1109,8 +1215,20 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
+    <source_block_id>blocks_add_const_vxx_0</source_block_id>
+    <sink_block_id>fec_extended_decoder_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
     <source_block_id>blocks_char_to_float_0</source_block_id>
     <sink_block_id>qtgui_time_sink_x_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_char_to_float_0_0</source_block_id>
+    <sink_block_id>blocks_add_const_vxx_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -1133,26 +1251,20 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>fec_generic_decoder_0</source_block_id>
+    <source_block_id>fec_extended_decoder_0</source_block_id>
     <sink_block_id>blocks_char_to_float_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>fec_generic_decoder_0</source_block_id>
-    <sink_block_id>blocks_null_sink_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>1</sink_key>
-  </connection>
-  <connection>
     <source_block_id>fec_generic_encoder_0</source_block_id>
-    <sink_block_id>blocks_unpack_k_bits_bb_0</sink_block_id>
+    <sink_block_id>blocks_char_to_float_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
     <source_block_id>fec_generic_encoder_0</source_block_id>
-    <sink_block_id>fec_generic_decoder_0</sink_block_id>
+    <sink_block_id>blocks_unpack_k_bits_bb_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

@@ -72,7 +72,7 @@ namespace gr
       unsigned char* u = (unsigned char*) volk_malloc(block_size(), volk_get_alignment());
       sc_decode(d_llr_vec, u);
 
-      print_pretty_llr_vector();
+//      print_pretty_llr_vector();
       extract_info_bits(out, u);
 
       volk_free(u);
@@ -81,13 +81,13 @@ namespace gr
     void
     polar_decoder_sc::sc_decode(float* llrs, unsigned char* u)
     {
-      d_node_counter = 0;
+//      d_node_counter = 0;
       d_frozen_bit_counter = 0;
       for(int i = 0; i < block_size(); i++){
         int row = bit_reverse(i, block_power());
         butterfly(llrs, row, 0, u, i);
         u[i] = retrieve_bit_from_llr(llrs[row], i);
-        print_pretty_llr_vector();
+//        print_pretty_llr_vector();
       }
     }
 
@@ -117,13 +117,13 @@ namespace gr
     void
     polar_decoder_sc::butterfly(float* llrs, int call_row, int stage, const unsigned char* u, const int u_num)
     {
-      for(int i = 0; i < stage; i++){std::cout << "\t";}
-      std::cout << d_node_counter + 1 <<  "\tcall_row: " << call_row << "\tstage: " << stage << "\t"<< u_num << "\t";
-      for(int i = 0; i < u_num; i++){
-        std::cout << int(u[i]) << ", ";
-      }
-      std::cout << std::endl;
-      d_node_counter++;
+//      for(int i = 0; i < stage; i++){std::cout << "\t";}
+//      std::cout << d_node_counter + 1 <<  "\tcall_row: " << call_row << "\tstage: " << stage << "\t"<< u_num << "\t";
+//      for(int i = 0; i < u_num; i++){
+//        std::cout << int(u[i]) << ", ";
+//      }
+//      std::cout << std::endl;
+//      d_node_counter++;
       if(!(block_power() > stage)){
 //        std::cout << "call_row: " << call_row << "\tstage: " << stage << "\tRETURN" << std::endl;
         return;
@@ -181,7 +181,6 @@ namespace gr
         std::cout << row << "->" << int(bit_reverse(row, block_power())) << ": ";
         for(int stage = 0; stage < block_power() + 1; stage++){
           printf("%+4.2f, ", d_llr_vec[(stage * block_size()) + row]);
-//          std::cout <<  << ", ";
         }
         std::cout << std::endl;
       }
@@ -203,19 +202,19 @@ namespace gr
       unsigned int frozenbit_num = 0;
       int infobit_num = 0;
       for(int i = 0; i < block_size(); i++){
-        std::cout << i << ": " << int(input[i]) << "\t";
+//        std::cout << i << ": " << int(input[i]) << "\t";
         if(frozenbit_num < d_frozen_bit_positions.size() && d_frozen_bit_positions.at(frozenbit_num) == i){
-          std::cout << "frozen = TRUE!\n";
+//          std::cout << "frozen = TRUE!\n";
           frozenbit_num++;
           continue;
         }
         else{
-          std::cout << "frozen = FALSE!\n";
+//          std::cout << "frozen = FALSE!\n";
           *(output + infobit_num) = *(input + i);
           infobit_num++;
         }
       }
-      std::cout << std::endl;
+//      std::cout << std::endl;
     }
 
   } /* namespace fec */

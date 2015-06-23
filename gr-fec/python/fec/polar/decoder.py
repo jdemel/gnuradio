@@ -33,7 +33,6 @@ class PolarDecoder(PolarCommon):
         self.error_probability = 0.1  # this is kind of a dummy value. usually chosen individually.
         self.bsc_lr = ((1 - self.error_probability) / self.error_probability, self.error_probability / (1 - self.error_probability))
         self.bsc_llrs = np.log(self.bsc_lr)
-        print(self.bsc_llrs)
 
     def _llr_bit(self, bit):
         return self.bsc_llrs[bit]

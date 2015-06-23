@@ -19,6 +19,7 @@
 # the Free Software Foundation, Inc., 51 Franklin Street,
 # Boston, MA 02110-1301, USA.
 #
+from Crypto.Cipher._AES import block_size
 
 from gnuradio import gr, gr_unittest, blocks
 import fec_swig as fec
@@ -59,7 +60,7 @@ class test_polar_decoder_sc(gr_unittest.TestCase):
         self.assertFalse(polar_decoder.set_frame_size(10))
 
     def test_002_one_vector(self):
-        print "test"
+        print "test_002_one_vector"
         is_packed = False
         block_size = 256
         num_info_bits = 128
@@ -69,7 +70,10 @@ class test_polar_decoder_sc(gr_unittest.TestCase):
 
         python_decoder = PolarDecoder(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values)
 
-        data = np.ones(block_size, dtype=int)
+        # data = np.ones(block_size, dtype=int)
+        bits = np.random.randint(2, size=num_info_bits)
+        encoder = PolarEncoder(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values)
+        data = encoder.encode(bits)
         # data = np.array([0, 1, 1, 0, 1, 0, 1, 0], dtype=int)
         gr_data = -2.0 * data + 1.0
 

@@ -57,6 +57,7 @@ class PolarCommon:
         return prototype
 
     def _extract_info_bits(self, y):
+        print y, self.frozen_bit_position, self.info_bit_position
         return y[self.info_bit_position]
 
     def _reverse_bits(self, vec):

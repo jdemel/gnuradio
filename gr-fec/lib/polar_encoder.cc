@@ -78,19 +78,11 @@ namespace gr
                                                           rev_pos);
       }
 
-//      print_packed_bit_array(d_frozen_bit_prototype, block_size() >> 3);
-
-      int num_frozen_bit = 0;
-      for(int i = 0; i < block_size(); i++) {
-        int frozen_pos = d_frozen_bit_positions.at(num_frozen_bit);
-        if(i != frozen_pos) {
-          d_info_bit_positions.push_back((int) bit_reverse((long) i, block_power()));
-        }
-        else {
-          num_frozen_bit++;
-          num_frozen_bit = std::min(num_frozen_bit, (int) (d_frozen_bit_positions.size() - 1));
-        }
+      std::vector<int> temp_vec = info_bit_position_vector();
+      for(unsigned int i = 0; i < temp_vec.size(); i++){
+        d_info_bit_positions.push_back((int) bit_reverse((long) temp_vec.at(i), block_power()));
       }
+
       if((int) d_info_bit_positions.size() != num_info_bits()) {
         throw std::runtime_error("number of info bit positions MUST equal num_info_bits (K)!");
       }

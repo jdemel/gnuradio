@@ -33,6 +33,7 @@
 #include <cmath>
 #include <stdexcept>
 #include <iostream>
+#include <vector>
 
 namespace gr
 {
@@ -59,9 +60,33 @@ namespace gr
       while(d_frozen_bit_values.size() < num_frozen_bits) {
         d_frozen_bit_values.push_back(0);
       }
+      initialize_info_bit_position_vector();
 
       d_packer = new gr::blocks::kernel::pack_k_bits(8);
       d_unpacker = new gr::blocks::kernel::unpack_k_bits(8);
+    }
+
+
+    std::vector<int>
+    polar_common::info_bit_position_vector()
+    {
+      return d_info_bit_positions;
+    }
+
+    void
+    polar_common::initialize_info_bit_position_vector()
+    {
+      int num_frozen_bit = 0;
+      for(int i = 0; i < block_size(); i++) {
+        int frozen_pos = d_frozen_bit_positions.at(num_frozen_bit);
+        if(i != frozen_pos) {
+          d_info_bit_positions.push_back((int) i);
+        }
+        else {
+          num_frozen_bit++;
+          num_frozen_bit = std::min(num_frozen_bit, (int) (d_frozen_bit_positions.size() - 1));
+        }
+      }
     }
 
     polar_common::~polar_common()

@@ -29,6 +29,7 @@
 #include <volk/volk.h>
 
 #include <cmath>
+#include <cstdio>
 
 namespace gr
 {
@@ -52,7 +53,7 @@ namespace gr
             d_frozen_bit_positions(frozen_bit_positions),
             d_frozen_bit_values(frozen_bit_values)
     {
-      d_llr_vec = (float*) volk_malloc(sizeof(float) * block_size, volk_get_alignment());
+      d_llr_vec = (float*) volk_malloc(sizeof(float) * block_size * (block_power() + 1), volk_get_alignment());
     }
 
     polar_decoder_sc::~polar_decoder_sc()
@@ -67,26 +68,13 @@ namespace gr
       unsigned char *out = (unsigned char*) out_buffer;
 
       initialize_llr_vector(d_llr_vec, in);
-      std::cout << "init'ed!\n";
-      for(int i = 0; i < block_size(); i++){
-        std::cout << d_llr_vec[i] << ", ";
-      }
-      std::cout << std::endl;
 
       unsigned char* u = (unsigned char*) volk_malloc(block_size(), volk_get_alignment());
       sc_decode(d_llr_vec, u);
-      std::cout << "first llr: " << d_llr_vec[0] << std::endl;
-      for(int i = 0; i < block_size(); i++){
-        std::cout << d_llr_vec[i] << ", ";
-      }
-      std::cout << std::endl;
+
+      print_pretty_llr_vector();
       extract_info_bits(out, u);
 
-//      for(int i = 0; i < num_info_bits(); i++){
-//        *out++ = llr_bit_decision(*in++);
-//      }
-      std::cout << "work DONE!\n";
-//      memcpy(out, in, num_info_bits());
       volk_free(u);
     }
 
@@ -94,10 +82,12 @@ namespace gr
     polar_decoder_sc::sc_decode(float* llrs, unsigned char* u)
     {
       d_node_counter = 0;
+      d_frozen_bit_counter = 0;
       for(int i = 0; i < block_size(); i++){
         int row = bit_reverse(i, block_power());
         butterfly(llrs, row, 0, u, i);
-        u[i] = llr_bit_decision(llrs[row]);
+        u[i] = retrieve_bit_from_llr(llrs[row], i);
+        print_pretty_llr_vector();
       }
     }
 
@@ -121,14 +111,14 @@ namespace gr
     void
     polar_decoder_sc::initialize_llr_vector(float* llrs, const float* input)
     {
-      volk_32f_s32f_multiply_32f(llrs, input, D_LLR_FACTOR, block_size());
+      volk_32f_s32f_multiply_32f(llrs + block_size() * block_power(), input, D_LLR_FACTOR, block_size());
     }
 
     void
     polar_decoder_sc::butterfly(float* llrs, int call_row, int stage, const unsigned char* u, const int u_num)
     {
       for(int i = 0; i < stage; i++){std::cout << "\t";}
-      std::cout << d_node_counter <<  "\tcall_row: " << call_row << "\tstage: " << stage << "\t";
+      std::cout << d_node_counter + 1 <<  "\tcall_row: " << call_row << "\tstage: " << stage << "\t"<< u_num << "\t";
       for(int i = 0; i < u_num; i++){
         std::cout << int(u[i]) << ", ";
       }
@@ -138,14 +128,14 @@ namespace gr
 //        std::cout << "call_row: " << call_row << "\tstage: " << stage << "\tRETURN" << std::endl;
         return;
       }
-
-
+      const int stage_offset = block_size() * stage;
+      const int next_offset = block_size() * (stage + 1);
 
       const int stage_half_block_size = block_size() >> (stage + 1);
       if((call_row % (0x1 << (block_power() - stage))) >= stage_half_block_size){
         const int upper_right = call_row - stage_half_block_size;
         const unsigned char f = u[u_num - 1];
-        llrs[call_row] = llr_even(llrs[upper_right], llrs[call_row], f);
+        llrs[stage_offset + call_row] = llr_even(llrs[next_offset + upper_right], llrs[next_offset + call_row], f);
         return;
       }
 
@@ -154,15 +144,12 @@ namespace gr
       unsigned char* u_half = (unsigned char*) volk_malloc(u_num / 2, volk_get_alignment());
       odd_xor_even_values(u_half, u, u_num);
 
-      butterfly(llrs, call_row, stage + 1, u, u_num / 2);
+      butterfly(llrs, call_row, stage + 1, u_half, u_num / 2);
       even_u_values(u_half, u, u_num);
-      butterfly(llrs, lower_right, stage + 1, u, u_num / 2);
+      butterfly(llrs, lower_right, stage + 1, u_half, u_num / 2);
       volk_free(u_half);
 
-//      float la = llrs[call_row];
-//      float lb = llrs[lower_right];
-      llrs[call_row] = llr_odd(llrs[call_row], llrs[lower_right]);
-//      std::cout << "call_row: " << call_row << "\tstage: " << stage << "\tla: " << la << "\tlb: " << lb << std::endl;
+      llrs[stage_offset + call_row] = llr_odd(llrs[next_offset + call_row], llrs[next_offset + lower_right]);
     }
 
 
@@ -170,26 +157,44 @@ namespace gr
     gr::fec::polar_decoder_sc::even_u_values(unsigned char* u_even, const unsigned char* u,
                                              const int u_num)
     {
-//      std::cout << u_num << "\teven vals: ";
       int r = 0;
       for(int i = 1; i < u_num; i += 2, r++){
         u_even[r] = u[i];
-//        std::cout << int(u_even[r]) << ", ";
       }
-//      std::cout << std::endl;
     }
 
     void
     gr::fec::polar_decoder_sc::odd_xor_even_values(unsigned char* u_xor, const unsigned char* u,
                                                    const int u_num)
     {
-//      std::cout << u_num << "\txor  vals: ";
       int r = 0;
-      for(int i = 1; i < u_num; i += 2, r++){
+      for(int i = 1; i < u_num; i += 2){
         u_xor[r] = u[i] ^ u[i - 1];
-//        std::cout << int(u_xor[r]) << ", ";
+        r++;
       }
-//      std::cout << std::endl;
+    }
+
+    void
+    polar_decoder_sc::print_pretty_llr_vector() const
+    {
+      for(int row = 0; row < block_size(); row++){
+        std::cout << row << "->" << int(bit_reverse(row, block_power())) << ": ";
+        for(int stage = 0; stage < block_power() + 1; stage++){
+          printf("%+4.2f, ", d_llr_vec[(stage * block_size()) + row]);
+//          std::cout <<  << ", ";
+        }
+        std::cout << std::endl;
+      }
+    }
+
+
+    unsigned char
+    polar_decoder_sc::retrieve_bit_from_llr(float llr, const int pos)
+    {
+      if(d_frozen_bit_counter < d_frozen_bit_positions.size() && pos == d_frozen_bit_positions.at(d_frozen_bit_counter)){
+        return d_frozen_bit_values.at(d_frozen_bit_counter++);
+      }
+      return llr_bit_decision(llr);
     }
 
     void
@@ -198,13 +203,16 @@ namespace gr
       unsigned int frozenbit_num = 0;
       int infobit_num = 0;
       for(int i = 0; i < block_size(); i++){
-        std::cout << int(input[i]) << ", ";
+        std::cout << i << ": " << int(input[i]) << "\t";
         if(frozenbit_num < d_frozen_bit_positions.size() && d_frozen_bit_positions.at(frozenbit_num) == i){
+          std::cout << "frozen = TRUE!\n";
           frozenbit_num++;
           continue;
         }
         else{
+          std::cout << "frozen = FALSE!\n";
           *(output + infobit_num) = *(input + i);
+          infobit_num++;
         }
       }
       std::cout << std::endl;

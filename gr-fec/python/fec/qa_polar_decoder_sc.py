@@ -61,16 +61,16 @@ class test_polar_decoder_sc(gr_unittest.TestCase):
     def test_002_one_vector(self):
         print "test"
         is_packed = False
-        block_size = 8
-        num_info_bits = 4
+        block_size = 256
+        num_info_bits = 128
         num_frozen_bits = block_size - num_info_bits
         frozen_bit_positions = get_frozen_bit_positions('polar', block_size, num_frozen_bits, 0.11)
         frozen_bit_values = np.array([0] * num_frozen_bits,)
 
         python_decoder = PolarDecoder(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values)
 
-        # data = np.ones(block_size, dtype=int)
-        data = np.array([0, 1, 1, 0, 1, 0, 1, 0], dtype=int)
+        data = np.ones(block_size, dtype=int)
+        # data = np.array([0, 1, 1, 0, 1, 0, 1, 0], dtype=int)
         gr_data = -2.0 * data + 1.0
 
         polar_decoder = fec.polar_decoder_sc.make(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values, is_packed)
@@ -86,9 +86,11 @@ class test_polar_decoder_sc(gr_unittest.TestCase):
 
         ref = python_decoder.decode(data)
 
-        print(data)
-        print(res)
-        print(ref)
+        print("input:", data)
+        print("res  :", res)
+        print("ref  :", ref)
+
+        self.assertTupleEqual(tuple(res), tuple(ref))
 
 
 if __name__ == '__main__':

@@ -58,6 +58,7 @@ namespace gr {
       long bit_reverse(long value, int active_bits) const;
       void print_packed_bit_array(const unsigned char* printed_array, const int num_bytes) const;
       const gr::blocks::kernel::unpack_k_bits* unpacker() const {return d_unpacker;};
+      std::vector<int> info_bit_position_vector();
 
     private:
       int d_block_size; // depending on paper called 'N' or 'm'
@@ -67,6 +68,7 @@ namespace gr {
       std::vector<int> d_frozen_bit_positions;
       std::vector<int> d_info_bit_positions;
       std::vector<char> d_frozen_bit_values;
+      void initialize_info_bit_position_vector();
 
       gr::blocks::kernel::pack_k_bits *d_packer;
       gr::blocks::kernel::unpack_k_bits *d_unpacker;

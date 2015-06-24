@@ -59,18 +59,18 @@ namespace gr {
       std::vector<char> d_frozen_bit_values;
 
       unsigned int d_frozen_bit_counter;
-      int d_node_counter;
 
       float* d_llr_vec;
       void print_pretty_llr_vector() const;
       void initialize_llr_vector(float* llrs, const float* input);
+      unsigned char* d_u_hat_vec;
 
-      float llr_odd(float la, float lb) const;
+      float llr_odd(const float la, const float lb) const;
       float llr_even(float la, float lb, unsigned char f) const;
       unsigned char llr_bit_decision(float llr) const {return (llr < 0.0f) ? 1 : 0;};
       unsigned char retrieve_bit_from_llr(float llr, const int pos);
       void sc_decode(float* llrs, unsigned char* u);
-      void butterfly(float* llrs, int call_row, int stage, const unsigned char* u, const int u_num);
+      void butterfly(float* llrs, int call_row, int stage, unsigned char* u, const int u_num);
       void even_u_values(unsigned char* u_even, const unsigned char* u, const int u_num);
       void odd_xor_even_values(unsigned char* u_xor, const unsigned char* u, const int u_num);
 

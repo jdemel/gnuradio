@@ -49,10 +49,10 @@ namespace gr {
       polar_common(int block_size, int num_info_bits, std::vector<int> frozen_bit_positions, std::vector<char> frozen_bit_values, bool is_packed = false);
       ~polar_common();
 
-      int block_size()const {return d_block_size;};
-      int block_power()const {return d_block_power;};
-      int num_info_bits() const {return d_num_info_bits;};
-      bool is_packed() const {return d_is_packed;};
+      const int block_size()const {return d_block_size;};
+      const int block_power()const {return d_block_power;};
+      const int num_info_bits() const {return d_num_info_bits;};
+      const bool is_packed() const {return d_is_packed;};
 
       // helper functions
       long bit_reverse(long value, int active_bits) const;

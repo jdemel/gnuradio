@@ -49,6 +49,7 @@ namespace gr {
       polar_common(int block_size, int num_info_bits, std::vector<int> frozen_bit_positions, std::vector<char> frozen_bit_values, bool is_packed = false);
       ~polar_common();
 
+    protected:
       const int block_size()const {return d_block_size;};
       const int block_power()const {return d_block_power;};
       const int num_info_bits() const {return d_num_info_bits;};

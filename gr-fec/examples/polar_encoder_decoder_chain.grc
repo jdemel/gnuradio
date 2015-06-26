@@ -160,6 +160,53 @@
     </param>
   </block>
   <block>
+    <key>variable_polar_decoder_sc_list_def</key>
+    <param>
+      <key>num_info_bits</key>
+      <value>128</value>
+    </param>
+    <param>
+      <key>block_size</key>
+      <value>256</value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>frozen_bit_positions</key>
+      <value>range(128)</value>
+    </param>
+    <param>
+      <key>frozen_bit_values</key>
+      <value>[0,] * 128</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(832, 443)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>polar_scld</value>
+    </param>
+    <param>
+      <key>max_list_size</key>
+      <value>8</value>
+    </param>
+    <param>
+      <key>is_packed</key>
+      <value>False</value>
+    </param>
+  </block>
+  <block>
     <key>variable</key>
     <param>
       <key>comment</key>

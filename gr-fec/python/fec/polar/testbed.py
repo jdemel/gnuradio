@@ -157,7 +157,7 @@ def main():
 
     # test_1024_rate_1_code()
 
-    # channel_analysis()
+    channel_analysis()
 
 
 if __name__ == '__main__':

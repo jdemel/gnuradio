@@ -45,7 +45,7 @@ namespace gr {
 
     private:
       polar_decoder_sc_list(int max_list_size, int block_size, int num_info_bits, std::vector<int> frozen_bit_positions, std::vector<char> frozen_bit_values, bool is_packed);
-      int d_max_list_size;
+      unsigned int d_max_list_size;
 
       // just a class to hold all the necessary info for the list of paths
       class path
@@ -54,7 +54,7 @@ namespace gr {
         path(int block_size, int block_power);
         ~path();
         void update_metrics(const int u_num, const int pos);
-        void set_ui(const unsigned char ui, const int u_num){u_hat_vec[u_num] = ui; path_metric = ui ? path_metric1 : path_metric0;};
+        void set_ui(const unsigned char ui, const int u_num);
         float calculate_path_metric(const float last_pm, const float llr, const unsigned char u_hat) const;
         void duplicate_path(const path* original_path, const int block_size, const int block_power);
         float* llr_vec;
@@ -74,7 +74,11 @@ namespace gr {
 
 
       void decode_list();
-      void update_active_paths(int u_num);
+      void update_active_paths(const int u_num);
+      void update_with_frozenbit(const int u_num);
+      void add_active_paths(const int u_num);
+      void duplicate_and_set_path(const int nactive, const int u_num);
+      void select_best_paths(const int u_num);
       void calculate_next_llr_in_paths(int u_num);
       void calculate_next_llr(path_sptr current_path, int u_num);
 

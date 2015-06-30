@@ -81,6 +81,7 @@ namespace gr {
       void select_best_paths(const int u_num);
       void calculate_next_llr_in_paths(int u_num);
       void calculate_next_llr(path_sptr current_path, int u_num);
+      int find_survivor() const;
 
 
 

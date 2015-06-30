@@ -79,8 +79,23 @@ namespace gr
 //        print_pretty_llr_vector(d_path_list[i]->llr_vec);
 //      }
 //      print_pretty_llr_vector(d_path_list[0]->llr_vec);
-      extract_info_bits(out, d_path_list[0]->u_hat_vec);
+      extract_info_bits(out, d_path_list[find_survivor()]->u_hat_vec);
 //      std::cout << "generic_work finished\n";
+    }
+
+    int
+    polar_decoder_sc_list::find_survivor() const
+    {
+      float path_val = 200000000.0f;
+      int survivor = 0;
+      for(unsigned int i =0 ; i < d_path_list.size(); i++){
+        if(d_path_list[i]->is_active && d_path_list[i]->path_metric < path_val){
+          survivor = i;
+          path_val = d_path_list[i]->path_metric;
+        }
+      }
+      std::cout << "path survivor: " << survivor << std::endl;
+      return survivor;
     }
 
     void
@@ -109,8 +124,8 @@ namespace gr
     void
     polar_decoder_sc_list::update_active_paths(const int u_num)
     {
-      const int row = bit_reverse(u_num, block_power());
-      std::cout << "update_active_paths, u_num = " << u_num << std::endl;
+//      const int row = bit_reverse(u_num, block_power());
+      std::cout << "update_active_paths, u_num = " << u_num << ", frozenbit_num = " << d_frozen_bit_counter << std::endl;
 
       // 1. if frozen bit, update with known value
       if(d_frozen_bit_counter < d_frozen_bit_positions.size() && u_num == d_frozen_bit_positions.at(d_frozen_bit_counter)){
@@ -140,17 +155,39 @@ namespace gr
       }
       std::sort(metrics.begin(), metrics.end());
       const float median = (metrics[d_max_list_size - 1] + metrics[d_max_list_size]) / 2;
-      for(int i = 0; i < metrics.size(); i++){
+      for(unsigned int i = 0; i < metrics.size(); i++){
         std::cout << metrics[i] << ", ";
       }
 
       std::cout << "\nselect_best_paths, u_num = " << u_num << ", median = " << median << std::endl;
+//      unsigned int kill_paths = 0;
+//      unsigned int equal_paths = 0;
+//      unsigned int duplicate_paths = 0;
+//
+//      for(unsigned int i = 0; i < d_path_list.size(); i++){
+//        if(d_path_list[i]->path_metric0 > median && d_path_list[i]->path_metric1 > median){
+//          kill_paths++;
+//        }
+//        else if(d_path_list[i]->path_metric0 == median && d_path_list[i]->path_metric1 == median){
+//          equal_paths++;
+//        }
+//        else if(d_path_list[i]->path_metric0 < median && d_path_list[i]->path_metric1 < median){
+//          duplicate_paths++;
+//        }
+//      }
 
       for(unsigned int i = 0; i < d_path_list.size(); i++){
         if(d_path_list[i]->path_metric0 >= median && d_path_list[i]->path_metric1 >= median){
           kill_path(i);
         }
       }
+
+//      unsigned int n_equal_kill = std::min(0, d_active_path_counter - (d_max_list_size / 2));
+//      for(unsigned int i = 0; i < d_path_list.size(); i++){
+//        if(d_path_list[i]->path_metric0 == median && d_path_list[i]->path_metric1 == median){
+//          kill_path(i);
+//        }
+//      }
 
       for(unsigned int i = 0; i < d_path_list.size(); i++){
         if(d_path_list[i]->path_metric0 < median && d_path_list[i]->path_metric1 < median){
@@ -184,6 +221,10 @@ namespace gr
     void
     polar_decoder_sc_list::duplicate_and_set_path(const int nactive, const int u_num)
     {
+      if(! (d_active_path_counter < d_max_list_size - 1)){
+        const unsigned char u_hat = (d_path_list[nactive]->path_metric0 < d_path_list[nactive]->path_metric1) ? 0 : 1;
+        d_path_list[nactive]->set_ui(u_hat, u_num);
+      }
       int n_active_pos = 0;
       while(d_path_list[n_active_pos]->is_active){
         n_active_pos++;
@@ -198,7 +239,7 @@ namespace gr
     {
       d_path_list[new_path_num]->duplicate_path(d_path_list[old_path_num].get(), block_size(), block_power());
       d_active_path_counter++;
-      print_pretty_llr_vector(d_path_list[new_path_num]->llr_vec);
+//      print_pretty_llr_vector(d_path_list[new_path_num]->llr_vec);
     }
 
     void

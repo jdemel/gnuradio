@@ -19,11 +19,9 @@
 # the Free Software Foundation, Inc., 51 Franklin Street,
 # Boston, MA 02110-1301, USA.
 #
-from Crypto.Cipher._AES import block_size
 
 from gnuradio import gr, gr_unittest, blocks
 import fec_swig as fec
-from _qa_helper import _qa_helper
 import numpy as np
 import os
 
@@ -34,8 +32,8 @@ from polar.decoder import PolarDecoder
 from polar.helper_functions import get_frozen_bit_positions
 # from polar.helper_functions import bit_reverse_vector
 
-# print('PID:', os.getpid())
-# raw_input('tell me smth')
+print('PID:', os.getpid())
+raw_input('tell me smth')
 
 class test_polar_decoder_sc(gr_unittest.TestCase):
 
@@ -63,9 +61,10 @@ class test_polar_decoder_sc(gr_unittest.TestCase):
     def test_002_one_vector(self):
         print "test_002_one_vector"
         is_packed = False
-        block_size = 8
-        num_info_bits = 4
-        max_list_size = 2
+        expo = 6
+        block_size = 2 ** expo
+        num_info_bits = 2 ** (expo - 1)
+        max_list_size = 2 ** (expo - 2)
         num_frozen_bits = block_size - num_info_bits
         frozen_bit_positions = get_frozen_bit_positions('polar', block_size, num_frozen_bits, 0.11)
         frozen_bit_values = np.array([0] * num_frozen_bits,)

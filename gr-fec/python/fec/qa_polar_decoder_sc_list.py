@@ -98,7 +98,7 @@ class test_polar_decoder_sc(gr_unittest.TestCase):
         print("ref  :", ref)
         print("bits :", bits)
 
-        # self.assertTupleEqual(tuple(res), tuple(ref))
+        self.assertTupleEqual(tuple(res), tuple(ref))
 
 
 

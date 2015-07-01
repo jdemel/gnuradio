@@ -29,6 +29,10 @@
 
 namespace gr {
   namespace fec {
+    namespace polar {
+      class scl_list;
+      class path;
+    }
 
     /*!
      * \brief implements a successive cancellation list decoder for polar codes
@@ -46,6 +50,8 @@ namespace gr {
     private:
       polar_decoder_sc_list(int max_list_size, int block_size, int num_info_bits, std::vector<int> frozen_bit_positions, std::vector<char> frozen_bit_values, bool is_packed);
       unsigned int d_max_list_size;
+
+      polar::scl_list* d_scl;
 
       // just a class to hold all the necessary info for the list of paths
       class path
@@ -80,7 +86,7 @@ namespace gr {
       void duplicate_and_set_path(const int nactive, const int u_num);
       void select_best_paths(const int u_num);
       void calculate_next_llr_in_paths(int u_num);
-      void calculate_next_llr(path_sptr current_path, int u_num);
+      void calculate_next_llr(polar::path* current_path, int u_num);
       int find_survivor() const;
 
 

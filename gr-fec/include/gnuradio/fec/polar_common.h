@@ -58,6 +58,7 @@ namespace gr {
       // helper functions
       long bit_reverse(long value, int active_bits) const;
       void print_packed_bit_array(const unsigned char* printed_array, const int num_bytes) const;
+      void print_unpacked_bit_array(const unsigned char* bits, const unsigned int num_bytes) const;
       const gr::blocks::kernel::unpack_k_bits* unpacker() const {return d_unpacker;};
       std::vector<int> info_bit_position_vector();
 

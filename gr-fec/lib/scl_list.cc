@@ -31,17 +31,17 @@ namespace gr {
     namespace polar {
 
       scl_list::scl_list(const unsigned int size, const unsigned int block_size, const unsigned int block_power):
-          d_list_size(size), d_block_size(block_size), d_block_power(block_power)
+          d_list_size(size), d_block_size(block_size), d_block_power(block_power), d_num_buff_elements(block_size * (block_power + 1))
       {
         for(unsigned int i = 0; i < 2 * size; i++){
           d_path_list.push_back(new path());
         }
 
         for(unsigned int i = 0; i < size; i++){
-          d_path_list[i]->llr_vec = (float*) volk_malloc(sizeof(float) * block_size * (block_power + 1), volk_get_alignment());
-          memset(d_path_list[i]->llr_vec, 0, sizeof(float) * block_size * (block_power + 1));
-          d_path_list[i]->u_vec = (unsigned char*) volk_malloc(sizeof(unsigned char) * block_size * (block_power + 1), volk_get_alignment());
-          memset(d_path_list[i]->u_vec, 0, sizeof(unsigned char) * block_size * (block_power + 1));
+          d_path_list[i]->llr_vec = (float*) volk_malloc(sizeof(float) * d_num_buff_elements, volk_get_alignment());
+          memset(d_path_list[i]->llr_vec, 0, sizeof(float) * d_num_buff_elements);
+          d_path_list[i]->u_vec = (unsigned char*) volk_malloc(sizeof(unsigned char) * d_num_buff_elements, volk_get_alignment());
+          memset(d_path_list[i]->u_vec, 0, sizeof(unsigned char) * d_num_buff_elements);
           d_path_list[i]->owns_vectors = true;
         }
 
@@ -86,11 +86,13 @@ namespace gr {
         if(d_active_path_counter < d_list_size) {
           const int offset = d_active_path_counter;
           for(int i = 0; i < offset; i++) {
-            duplicate_path(d_path_list[i], d_path_list[i + offset]);
+            duplicate_path(d_path_list[i + offset], d_path_list[i]);
             d_path_list[i]->path_metric = update_path_metric(d_path_list[i]->path_metric,
                                                              d_path_list[i]->llr_vec[rev_pos], 0);
             d_path_list[i + offset]->path_metric = update_path_metric(
                 d_path_list[i + offset]->path_metric, d_path_list[i + offset]->llr_vec[rev_pos], 1);
+            d_path_list[i]->u_vec[bit_pos] = 0;
+            d_path_list[i + offset]->u_vec[bit_pos] = 1;
           }
         }
         else {
@@ -99,14 +101,22 @@ namespace gr {
             branch_paths(d_path_list[i + d_list_size], d_path_list[i], d_path_list[i]->llr_vec[rev_pos]);
           }
           std::sort(d_path_list.begin(), d_path_list.end(), path_compare);
+          for(unsigned int i = 0; i < d_path_list.size(); i++){
+            std::cout << "set_info_bit->path_metrics: " << i << " --> " << d_path_list[i]->path_metric << std::endl;
+          }
 
           for(unsigned int i = 0; i < d_list_size; i++) {
+
             if(!d_path_list[i]->owns_vectors) {
               int t_pos = d_list_size;
               while(!d_path_list[t_pos]->owns_vectors) {
                 t_pos++;
               }
               steal_vector_ownership(d_path_list[i], d_path_list[t_pos]);
+              d_path_list[i]->u_vec[bit_pos] = 1;
+            }
+            else{
+              d_path_list[i]->u_vec[bit_pos] = 0;
             }
           }
         }
@@ -117,8 +127,19 @@ namespace gr {
       void
       scl_list::branch_paths(path* target, path* original, const float llr)
       {
-        original->path_metric = update_path_metric(original->path_metric, llr, 0);
-        target->path_metric = update_path_metric(original->path_metric, llr, 1);
+        // this is the 'explicit' version. It works correctly. Really odd behaviour here.
+        const float metric0 = update_path_metric(original->path_metric, llr, 0);
+        std::cout << "branch_path llr = " << llr << ", u = " << 0 << ", metric = " << metric0 << std::endl;
+        const float metric1 = update_path_metric(original->path_metric, llr, 1);
+        std::cout << "branch_path llr = " << llr << ", u = " << 1 << ", metric = " << metric1 << std::endl;
+        original->path_metric = metric0;
+        target->path_metric = metric1;
+
+////         this is the 'short' version. for unknown reasons, it yields incorrect results.
+//        original->path_metric = update_path_metric(original->path_metric, llr, 0);
+//        target->path_metric = update_path_metric(original->path_metric, llr, 1);
+
+        std::cout << "branch_paths llr = " << llr << ", orig(0) = " << original->path_metric << ", target (1) = " << target->path_metric << std::endl;
         target->llr_vec = original->llr_vec;
         target->u_vec = original->u_vec;
       }
@@ -128,8 +149,8 @@ namespace gr {
       scl_list::steal_vector_ownership(path* target, path* original)
       {
         std::cout << "steal_vec orig:" << original->owns_vectors << ", target:" << target->owns_vectors << std::endl;
-        memcpy(original->llr_vec, target->llr_vec, sizeof(float) * d_block_size * d_block_power);
-        memcpy(original->u_vec, target->u_vec, sizeof(unsigned char) * d_block_size * d_block_power);
+        memcpy(original->llr_vec, target->llr_vec, sizeof(float) * d_num_buff_elements);
+        memcpy(original->u_vec, target->u_vec, sizeof(unsigned char) * d_num_buff_elements);
         target->llr_vec = original->llr_vec;
         target->u_vec = original->u_vec;
         target->owns_vectors = true;
@@ -138,10 +159,10 @@ namespace gr {
 
 
       void
-      scl_list::duplicate_path(path* target, path* original)
+      scl_list::duplicate_path(path* target, const path* original)
       {
-        memcpy(target->llr_vec, original->llr_vec, sizeof(float) * d_block_size * d_block_power);
-        memcpy(target->u_vec, original->u_vec, sizeof(unsigned char) * d_block_size * d_block_power);
+        memcpy(target->llr_vec, original->llr_vec, sizeof(float) * d_num_buff_elements);
+        memcpy(target->u_vec, original->u_vec, sizeof(unsigned char) * d_num_buff_elements);
         target->path_metric = original->path_metric;
         d_active_path_counter++;
         target->is_active = true;
@@ -151,8 +172,8 @@ namespace gr {
       scl_list::update_path_metric(const float last_pm, const float llr,
                                                    const float ui) const
       {
-        //      if((u_hat == 0 && llr > 0.0f) || (u_hat == 1 && llr < 0.0f)){
-        if(ui == (unsigned char) (0.5 * 1 - copysignf(1.0f, llr))){
+        if((ui == 0 && llr > 0.0f) || (ui == 1 && llr < 0.0f)){
+//        if(ui == (unsigned char) (0.5 * 1 - copysignf(1.0f, llr))){
           return last_pm;
         }
         return last_pm + fabs(llr);
@@ -161,15 +182,12 @@ namespace gr {
       void
       scl_list::set_frozen_bit(const unsigned char frozen_bit, const int bit_pos)
       {
-        // set frozen bit for all ACTIVE paths!
         // does first half always own its vectors?
         const int rev_pos = bit_reverse(bit_pos, d_block_power);
 
         for(unsigned int i = 0; i < d_active_path_counter; i++){
-          if(d_path_list[i]->is_active){
-            d_path_list[i]->u_vec[bit_pos] = frozen_bit;
-            d_path_list[i]->path_metric = update_path_metric(d_path_list[i]->path_metric, d_path_list[i]->llr_vec[rev_pos], frozen_bit);
-          }
+          d_path_list[i]->u_vec[bit_pos] = frozen_bit;
+          d_path_list[i]->path_metric = update_path_metric(d_path_list[i]->path_metric, d_path_list[i]->llr_vec[rev_pos], frozen_bit);
         }
         d_active_pos = 0;
       }

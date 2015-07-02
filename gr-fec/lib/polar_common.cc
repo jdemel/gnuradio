@@ -124,6 +124,16 @@ namespace gr
       delete [] temp;
     }
 
+    void
+    polar_common::print_unpacked_bit_array(const unsigned char* bits,
+                                                    const unsigned int num_bytes) const
+    {
+      std::cout << "( ";
+      for(unsigned int i = 0; i < num_bytes; i++){
+        std::cout << (int) *bits++ << ", ";
+      }
+      std::cout << ")" << std::endl;
+    }
+
   } /* namespace fec */
 } /* namespace gr */
-

@@ -43,12 +43,13 @@ namespace gr {
         const unsigned int d_list_size;
         const unsigned int d_block_size;
         const unsigned int d_block_power;
+        const unsigned int d_num_buff_elements;
         std::vector<path*> d_path_list;
         unsigned int d_active_path_counter;
         unsigned int d_active_pos;
 
         float update_path_metric(const float last_pm, const float llr, const float ui) const;
-        void duplicate_path(path* target, path* original);
+        void duplicate_path(path* target, const path* original);
         void branch_paths(path* target, path* original, const float llr);
         void steal_vector_ownership(path* target, path* original);
         long bit_reverse(long value, int active_bits) const;

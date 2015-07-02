@@ -31,9 +31,9 @@ from polar.encoder import PolarEncoder
 from polar.decoder import PolarDecoder
 from polar.helper_functions import get_frozen_bit_positions
 # from polar.helper_functions import bit_reverse_vector
-
-print('PID:', os.getpid())
-raw_input('tell me smth')
+#
+# print('PID:', os.getpid())
+# raw_input('tell me smth')
 
 class test_polar_decoder_sc(gr_unittest.TestCase):
 
@@ -73,8 +73,8 @@ class test_polar_decoder_sc(gr_unittest.TestCase):
         python_decoder = PolarDecoder(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values)
 
         # data = np.ones(block_size, dtype=int)
-        # bits = np.random.randint(2, size=num_info_bits)
-        bits = np.ones(num_info_bits, dtype=int)
+        bits = np.random.randint(2, size=num_info_bits)
+        # bits = np.ones(num_info_bits, dtype=int)
         encoder = PolarEncoder(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values)
         data = encoder.encode(bits)
         # data = np.array([0, 1, 1, 0, 1, 0, 1, 0], dtype=int)

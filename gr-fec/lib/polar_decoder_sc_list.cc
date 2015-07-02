@@ -74,10 +74,14 @@ namespace gr
     {
       const float *in = (const float*) in_buffer;
       unsigned char *out = (unsigned char*) out_buffer;
-      initialize_llr_vector(d_scl->initial_path()->llr_vec, in);
+      polar::path* init_path = d_scl->initial_path();
+      initialize_llr_vector(init_path->llr_vec, in);
+      print_pretty_llr_vector(init_path->llr_vec);
       decode_list();
-      // produce output!
-      d_scl->reset();
+
+      const polar::path* temp = d_scl->optimal_path();
+      print_pretty_llr_vector(temp->llr_vec);
+      extract_info_bits(out, temp->u_vec);
     }
 
     int
@@ -98,7 +102,7 @@ namespace gr
     void
     polar_decoder_sc_list::decode_list()
     {
-
+      d_frozen_bit_counter = 0;
       for(int i = 0; i < block_size(); i++){
         std::cout << "\n\ndecode n = " << i << std::endl;
         calculate_next_llr_in_paths(i);
@@ -120,7 +124,7 @@ namespace gr
         update_with_frozenbit(u_num);
       }
 
-      // 2. info bit, not all paths in use
+      // 2. info bit
       else if(d_active_path_counter < d_max_list_size){
         std::cout << "calc_next_llr_in_path->set_info_bit( " << u_num << " )\n";
         d_scl->set_info_bit(u_num);
@@ -240,11 +244,7 @@ namespace gr
       unsigned char frozen_bit = d_frozen_bit_values[d_frozen_bit_counter];
 
 //      std::cout << "update_frozen_bit u_num = " << u_num << ", with " << int(frozen_bit) << std::endl;
-//      for(unsigned int i = 0; i < d_path_list.size(); i++){
-//        if(d_path_list[i]->is_active){
-//          d_path_list[i]->set_ui(frozen_bit, u_num);
-//        }
-//      }
+
       d_scl->set_frozen_bit(frozen_bit, u_num);
       d_frozen_bit_counter++;
     }
@@ -255,6 +255,8 @@ namespace gr
       int row = bit_reverse(u_num, block_power());
       std::cout << "\t\t\t\tcalc_next_llr = " << u_num << "->" << row << ", metric = " << current_path->path_metric << std::endl;
       butterfly(current_path->llr_vec, row, 0, current_path->u_vec, u_num);
+      print_unpacked_bit_array(current_path->u_vec, block_size());
+      print_pretty_llr_vector(current_path->llr_vec);
 //      current_path->update_metrics(u_num, row);
     }
 

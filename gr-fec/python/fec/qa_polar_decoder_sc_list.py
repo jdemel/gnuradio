@@ -35,7 +35,7 @@ from polar.helper_functions import get_frozen_bit_positions
 # print('PID:', os.getpid())
 # raw_input('tell me smth')
 
-class test_polar_decoder_sc(gr_unittest.TestCase):
+class test_polar_decoder_sc_list(gr_unittest.TestCase):
 
     def setUp(self):
         self.tb = gr.top_block()
@@ -100,11 +100,58 @@ class test_polar_decoder_sc(gr_unittest.TestCase):
 
         self.assertTupleEqual(tuple(res), tuple(ref))
 
+    def test_003_stream(self):
+        print "test_003_stream"
+        nframes = 5
+        is_packed = False
+        expo = 6
+        block_size = 2 ** expo
+        num_info_bits = 2 ** (expo - 1)
+        max_list_size = 2 ** (expo - 2)
+        num_frozen_bits = block_size - num_info_bits
+        frozen_bit_positions = get_frozen_bit_positions('polar', block_size, num_frozen_bits, 0.11)
+        frozen_bit_values = np.array([0] * num_frozen_bits,)
+        print(frozen_bit_positions)
+
+        encoder = PolarEncoder(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values)
+
+        # data = np.ones(block_size, dtype=int)
+        ref = np.array([], dtype=int)
+        data = np.array([], dtype=int)
+        for i in range(nframes):
+            b = np.random.randint(2, size=num_info_bits)
+            d = encoder.encode(b)
+            data = np.append(data, d)
+            ref = np.append(ref, b)
+
+        # bits = np.ones(num_info_bits, dtype=int)
+        # data = encoder.encode(bits)
+        # data = np.array([0, 1, 1, 0, 1, 0, 1, 0], dtype=int)
+        gr_data = -2.0 * data + 1.0
+
+        polar_decoder = fec.polar_decoder_sc_list.make(max_list_size, block_size, num_info_bits, frozen_bit_positions, frozen_bit_values, is_packed)
+        src = blocks.vector_source_f(gr_data, False)
+        dec_block = extended_decoder(polar_decoder, None)
+        snk = blocks.vector_sink_b(1)
+
+        self.tb.connect(src, dec_block)
+        self.tb.connect(dec_block, snk)
+        self.tb.run()
+
+        res = np.array(snk.data()).astype(dtype=int)
+
+
+        print("input:", data)
+        print("res  :", res)
+        print("ref  :", ref)
+
+        self.assertTupleEqual(tuple(res), tuple(ref))
+
 
 
 
 if __name__ == '__main__':
-    gr_unittest.run(test_polar_decoder_sc)
+    gr_unittest.run(test_polar_decoder_sc_list)
 
 
 

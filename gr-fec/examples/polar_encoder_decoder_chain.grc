@@ -281,7 +281,7 @@
     </param>
     <param>
       <key>num_samps</key>
-      <value>2 ** 10</value>
+      <value>2 ** 10 </value>
     </param>
     <param>
       <key>type</key>
@@ -555,7 +555,7 @@
     </param>
     <param>
       <key>decoder_list</key>
-      <value>polar_decoder</value>
+      <value>polar_scld</value>
     </param>
     <param>
       <key>_enabled</key>

@@ -101,9 +101,10 @@ namespace gr {
             branch_paths(d_path_list[i + d_list_size], d_path_list[i], d_path_list[i]->llr_vec[rev_pos]);
           }
           std::sort(d_path_list.begin(), d_path_list.end(), path_compare);
-          for(unsigned int i = 0; i < d_path_list.size(); i++){
-            std::cout << "set_info_bit->path_metrics: " << i << " --> " << d_path_list[i]->path_metric << std::endl;
-          }
+
+//          for(unsigned int i = 0; i < d_path_list.size(); i++){
+//            std::cout << "set_info_bit->path_metrics: " << i << " --> " << d_path_list[i]->path_metric << std::endl;
+//          }
 
           for(unsigned int i = 0; i < d_list_size; i++) {
 
@@ -123,32 +124,18 @@ namespace gr {
         d_active_pos = 0;
       }
 
-
       void
       scl_list::branch_paths(path* target, path* original, const float llr)
       {
-        // this is the 'explicit' version. It works correctly. Really odd behaviour here.
-        const float metric0 = update_path_metric(original->path_metric, llr, 0);
-        std::cout << "branch_path llr = " << llr << ", u = " << 0 << ", metric = " << metric0 << std::endl;
-        const float metric1 = update_path_metric(original->path_metric, llr, 1);
-        std::cout << "branch_path llr = " << llr << ", u = " << 1 << ", metric = " << metric1 << std::endl;
-        original->path_metric = metric0;
-        target->path_metric = metric1;
-
-////         this is the 'short' version. for unknown reasons, it yields incorrect results.
-//        original->path_metric = update_path_metric(original->path_metric, llr, 0);
-//        target->path_metric = update_path_metric(original->path_metric, llr, 1);
-
-        std::cout << "branch_paths llr = " << llr << ", orig(0) = " << original->path_metric << ", target (1) = " << target->path_metric << std::endl;
+        target->path_metric = update_path_metric(original->path_metric, llr, 1);
+        original->path_metric = update_path_metric(original->path_metric, llr, 0);
         target->llr_vec = original->llr_vec;
         target->u_vec = original->u_vec;
       }
 
-
       void
       scl_list::steal_vector_ownership(path* target, path* original)
       {
-        std::cout << "steal_vec orig:" << original->owns_vectors << ", target:" << target->owns_vectors << std::endl;
         memcpy(original->llr_vec, target->llr_vec, sizeof(float) * d_num_buff_elements);
         memcpy(original->u_vec, target->u_vec, sizeof(unsigned char) * d_num_buff_elements);
         target->llr_vec = original->llr_vec;
@@ -156,7 +143,6 @@ namespace gr {
         target->owns_vectors = true;
         original->owns_vectors = false;
       }
-
 
       void
       scl_list::duplicate_path(path* target, const path* original)

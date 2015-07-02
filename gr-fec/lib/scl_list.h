@@ -38,7 +38,10 @@ namespace gr {
         unsigned char* u_vec;
       };
 
-
+      /*!
+       * \brief List implementation for Successive Cancellation List decoders
+       *
+       */
       class scl_list{
         const unsigned int d_list_size;
         const unsigned int d_block_size;

@@ -73,7 +73,8 @@ def pack_byte(bits):
 
 def get_frozen_bit_positions(directory, n, k, p):
     import glob, os
-    os.chdir(directory)
+    if not os.getcwd().endswith(directory):
+        os.chdir(directory)
     prefix = 'frozen_bit_positions_'
     prefix_len = len(prefix)
     for file in glob.glob("*.npy"):

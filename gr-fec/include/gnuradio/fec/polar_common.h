@@ -41,7 +41,7 @@ namespace gr {
 
     /*!
      * \brief POLAR code common operations and attributes
-     *
+     * Erdal Arikan "Channel Polarization: A Method for Contructing Capacity-Achieving Codes for Symmetric Binary-Input Memoryless Channels", 2009
      */
     class FEC_API polar_common
     {

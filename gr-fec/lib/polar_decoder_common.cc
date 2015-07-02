@@ -78,6 +78,8 @@ namespace gr {
       }
 
       const int stage_half_block_size = block_size() >> (stage + 1);
+
+      // reversed bit-order impl.
       if((call_row % (0x1 << (block_power() - stage))) >= stage_half_block_size){
         const int upper_right = call_row - stage_half_block_size;
         const unsigned char f = u[u_num - 1];
@@ -96,6 +98,32 @@ namespace gr {
       butterfly(llrs + block_size(), lower_right, stage + 1, u_half, u_num / 2);
 
       llrs[call_row] = llr_odd(llrs[block_size() + call_row], llrs[block_size() + lower_right]);
+
+
+
+//      // this is a natural bit order impl
+//      const int upper_right = call_row >> 1; // floor divide by 2.
+//      const int lower_right = upper_right + stage_half_block_size;
+//      float* next_llrs = llrs + block_size();
+//      float* call_row_llr = llrs + call_row;
+//      const float* upper_right_llr_ptr = next_llrs + upper_right;
+//      const float* lower_right_llr_ptr = next_llrs + lower_right;
+//      if(call_row % 2){
+//        const unsigned char f = u[u_num - 1];
+//        *call_row_llr = llr_even(*upper_right_llr_ptr, *lower_right_llr_ptr, f);
+//        return;
+//      }
+//      unsigned char* u_half = u + block_size();
+//      const int next_u_num = u_num / 2;
+//      const int next_stage = stage + 1;
+//
+//      odd_xor_even_values(u_half, u, u_num);
+//      butterfly(next_llrs, upper_right, next_stage, u_half, next_u_num);
+//
+//      even_u_values(u_half, u, u_num);
+//      butterfly(next_llrs, lower_right, next_stage, u_half, next_u_num);
+//
+//      *call_row_llr = llr_odd(*upper_right_llr_ptr, *lower_right_llr_ptr);
     }
 
 
@@ -125,18 +153,14 @@ namespace gr {
     {
       unsigned int frozenbit_num = 0;
       for(int i = 0; i < block_size(); i++){
-//        std::cout << i << ": " << int(input[i]) << "\t";
         if(frozenbit_num < d_frozen_bit_positions.size() && d_frozen_bit_positions.at(frozenbit_num) == i){
-//          std::cout << "frozen = TRUE!\n";
           frozenbit_num++;
         }
         else{
-//          std::cout << "frozen = FALSE!\n";
           *output++ = *input;
         }
         input++;
       }
-//      std::cout << std::endl;
     }
 
     void

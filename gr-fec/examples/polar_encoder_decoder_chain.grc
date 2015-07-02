@@ -18,7 +18,17 @@
     </param>
     <param>
       <key>comment</key>
-      <value></value>
+      <value># for rough throughput measurements.
+
+    tb = polar_encoder_decoder_chain()
+    start_time = time.time()
+    tb.start()
+    tb.wait()
+    stop_time = time.time()
+    samps = 2 ** 22
+    diff = stop_time - start_time
+    throughput = tb.head_samps / diff
+    print("exe time:", diff, ", with ", tb.head_samps, "samps, throughput: ", throughput)</value>
     </param>
     <param>
       <key>description</key>
@@ -38,7 +48,7 @@
     </param>
     <param>
       <key>generate_options</key>
-      <value>qt_gui</value>
+      <value>no_gui</value>
     </param>
     <param>
       <key>id</key>
@@ -54,7 +64,7 @@
     </param>
     <param>
       <key>run_options</key>
-      <value>prompt</value>
+      <value>run</value>
     </param>
     <param>
       <key>run</key>
@@ -71,6 +81,33 @@
     <param>
       <key>window_size</key>
       <value>1920, 1080</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(360, 11)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>head_samps</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>2 ** 22</value>
     </param>
   </block>
   <block>
@@ -101,7 +138,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1088, 459)</value>
+      <value>(864, 555)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -144,7 +181,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(416, 355)</value>
+      <value>(192, 451)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -187,7 +224,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(832, 443)</value>
+      <value>(608, 539)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -204,33 +241,6 @@
     <param>
       <key>is_packed</key>
       <value>False</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(10, 170)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>samp_rate</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>32000</value>
     </param>
   </block>
   <block>
@@ -253,7 +263,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(136, 227)</value>
+      <value>(0, 323)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -316,7 +326,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(976, 251)</value>
+      <value>(752, 347)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -359,11 +369,11 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>False</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1336, 251)</value>
+      <value>(1112, 347)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -410,7 +420,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(840, 251)</value>
+      <value>(616, 347)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -457,7 +467,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1080, 363)</value>
+      <value>(944, 459)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -477,7 +487,7 @@
     </param>
     <param>
       <key>num_items</key>
-      <value>2 ** 32</value>
+      <value>head_samps</value>
     </param>
     <param>
       <key>type</key>
@@ -512,7 +522,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1384, 368)</value>
+      <value>(1160, 464)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -563,7 +573,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1096, 227)</value>
+      <value>(872, 323)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -618,7 +628,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(416, 235)</value>
+      <value>(192, 331)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -704,11 +714,11 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>False</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1480, 235)</value>
+      <value>(1256, 331)</value>
     </param>
     <param>
       <key>gui_hint</key>

@@ -114,8 +114,7 @@ namespace gr
     void
     polar_decoder_sc_list::calculate_next_llr(polar::path* current_path, int u_num)
     {
-      int row = bit_reverse(u_num, block_power());
-      butterfly(current_path->llr_vec, row, 0, current_path->u_vec, u_num);
+      butterfly(current_path->llr_vec, 0, current_path->u_vec, u_num);
     }
   } /* namespace fec */
 } /* namespace gr */

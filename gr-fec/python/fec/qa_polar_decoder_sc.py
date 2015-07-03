@@ -62,16 +62,17 @@ class test_polar_decoder_sc(gr_unittest.TestCase):
     def test_002_one_vector(self):
         print "test_002_one_vector"
         is_packed = False
-        block_size = 256
-        num_info_bits = 128
+        block_power = 4
+        block_size = 2 ** block_power
+        num_info_bits = 2 ** (block_power - 1)
         num_frozen_bits = block_size - num_info_bits
         frozen_bit_positions = get_frozen_bit_positions('polar', block_size, num_frozen_bits, 0.11)
         frozen_bit_values = np.array([0] * num_frozen_bits,)
 
         python_decoder = PolarDecoder(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values)
 
-        # data = np.ones(block_size, dtype=int)
-        bits = np.random.randint(2, size=num_info_bits)
+        bits = np.ones(num_info_bits, dtype=int)
+        # bits = np.random.randint(2, size=num_info_bits)
         encoder = PolarEncoder(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values)
         data = encoder.encode(bits)
         # data = np.array([0, 1, 1, 0, 1, 0, 1, 0], dtype=int)

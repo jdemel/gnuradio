@@ -30,6 +30,8 @@
 
 #include <cstdio>
 
+#define INT_BIT_MASK 0x80000000
+
 namespace gr {
   namespace fec {
 
@@ -71,59 +73,37 @@ namespace gr {
     }
 
     void
-    polar_decoder_common::butterfly(float* llrs, int call_row, int stage, unsigned char* u, const int u_num)
+    polar_decoder_common::butterfly(float* llrs, const int stage, unsigned char* u, const int u_num)
     {
-      if(!(block_power() > stage)){
-        return;
-      }
-
-      const int stage_half_block_size = block_size() >> (stage + 1);
-
-      // reversed bit-order impl.
-      if((call_row % (0x1 << (block_power() - stage))) >= stage_half_block_size){
-        const int upper_right = call_row - stage_half_block_size;
-        const unsigned char f = u[u_num - 1];
-        llrs[call_row] = llr_even(llrs[block_size() + upper_right], llrs[block_size() + call_row], f);
-        return;
-      }
-
-      const int lower_right = call_row + stage_half_block_size;
-
-      unsigned char* u_half = u + block_size();
-
-      odd_xor_even_values(u_half, u, u_num);
-      butterfly(llrs + block_size(), call_row, stage + 1, u_half, u_num / 2);
-
-      even_u_values(u_half, u, u_num);
-      butterfly(llrs + block_size(), lower_right, stage + 1, u_half, u_num / 2);
-
-      llrs[call_row] = llr_odd(llrs[block_size() + call_row], llrs[block_size() + lower_right]);
-
-
-
-//      // this is a natural bit order impl
-//      const int upper_right = call_row >> 1; // floor divide by 2.
-//      const int lower_right = upper_right + stage_half_block_size;
-//      float* next_llrs = llrs + block_size();
-//      float* call_row_llr = llrs + call_row;
-//      const float* upper_right_llr_ptr = next_llrs + upper_right;
-//      const float* lower_right_llr_ptr = next_llrs + lower_right;
-//      if(call_row % 2){
-//        const unsigned char f = u[u_num - 1];
-//        *call_row_llr = llr_even(*upper_right_llr_ptr, *lower_right_llr_ptr, f);
+//      if(!(block_power() > stage)){
 //        return;
 //      }
-//      unsigned char* u_half = u + block_size();
-//      const int next_u_num = u_num / 2;
-//      const int next_stage = stage + 1;
-//
-//      odd_xor_even_values(u_half, u, u_num);
-//      butterfly(next_llrs, upper_right, next_stage, u_half, next_u_num);
-//
-//      even_u_values(u_half, u, u_num);
-//      butterfly(next_llrs, lower_right, next_stage, u_half, next_u_num);
-//
-//      *call_row_llr = llr_odd(*upper_right_llr_ptr, *lower_right_llr_ptr);
+      const int next_stage = stage + 1;
+      const int stage_half_block_size = block_size() >> next_stage;
+
+//      // this is a natural bit order impl
+      float* next_llrs = llrs + block_size(); // LLRs are stored in an consecutive array.
+      float* call_row_llr = llrs + u_num;
+      const int upper_right = u_num >> 1; // floor divide by 2.
+      const float* upper_right_llr_ptr = next_llrs + upper_right;
+      const float* lower_right_llr_ptr = upper_right_llr_ptr + stage_half_block_size;
+
+      if(u_num % 2){
+        const unsigned char f = u[u_num - 1];
+        *call_row_llr = llr_even(*upper_right_llr_ptr, *lower_right_llr_ptr, f);
+        return;
+      }
+
+      if(block_power() > next_stage) {
+        unsigned char* u_half = u + block_size();
+        odd_xor_even_values(u_half, u, u_num);
+        butterfly(next_llrs, next_stage, u_half, upper_right);
+
+        even_u_values(u_half, u, u_num);
+        butterfly(next_llrs + stage_half_block_size, next_stage, u_half, upper_right);
+      }
+
+      *call_row_llr = llr_odd(*upper_right_llr_ptr, *lower_right_llr_ptr);
     }
 
 
@@ -146,6 +126,12 @@ namespace gr {
         *u_xor++ = *u ^ *(u + 1);
         u += 2;
       }
+
+//      const int iterations = u_num >> 6;
+//      for(int i = 0; i < iterations; i++){
+//        (long*) u_xor = ((long*) u) ^ (((long*) u) << 1);
+//        demortonize_values(u_xor);
+//      }
     }
 
     void
@@ -161,6 +147,23 @@ namespace gr {
         }
         input++;
       }
+    }
+
+    void
+    polar_decoder_common::demortonize_values(unsigned char* u)
+    {
+      long* ut = (long*) u;
+      *ut &= 0xaaAAaaAAaaAAaaAA;
+      *ut = (*ut ^ (*ut << 1))  & 0xccCCccCCccCCccCC;
+      *ut = (*ut ^ (*ut << 2))  & 0xf0f0f0f0f0f0f0f0;
+      *ut = (*ut ^ (*ut << 4))  & 0xff00ff00ff00ff00;
+      *ut = (*ut ^ (*ut << 8))  & 0xffff0000ffff0000;
+      *ut = (*ut ^ (*ut << 16)) & 0xffffffff00000000;
+
+      //      *u = (*u << 1) & 0xaa;        // b0d0f0h0
+      //      *u = (*u ^ (*u << 1)) & 0xcc; // bd00fh00
+      //      *u = (*u ^ (*u << 2)) & 0x0f; // bdfh0000
+
     }
 
     void

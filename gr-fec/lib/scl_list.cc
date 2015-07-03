@@ -82,15 +82,14 @@ namespace gr {
       void
       scl_list::set_info_bit(const int bit_pos)
       {
-        const int rev_pos = bit_reverse(bit_pos, d_block_power);
         if(d_active_path_counter < d_list_size) {
           const int offset = d_active_path_counter;
           for(int i = 0; i < offset; i++) {
             duplicate_path(d_path_list[i + offset], d_path_list[i]);
             d_path_list[i]->path_metric = update_path_metric(d_path_list[i]->path_metric,
-                                                             d_path_list[i]->llr_vec[rev_pos], 0);
+                                                             d_path_list[i]->llr_vec[bit_pos], 0);
             d_path_list[i + offset]->path_metric = update_path_metric(
-                d_path_list[i + offset]->path_metric, d_path_list[i + offset]->llr_vec[rev_pos], 1);
+                d_path_list[i + offset]->path_metric, d_path_list[i + offset]->llr_vec[bit_pos], 1);
             d_path_list[i]->u_vec[bit_pos] = 0;
             d_path_list[i + offset]->u_vec[bit_pos] = 1;
           }
@@ -98,13 +97,9 @@ namespace gr {
         else {
 
           for(unsigned int i = 0; i < d_list_size; i++) {
-            branch_paths(d_path_list[i + d_list_size], d_path_list[i], d_path_list[i]->llr_vec[rev_pos]);
+            branch_paths(d_path_list[i + d_list_size], d_path_list[i], d_path_list[i]->llr_vec[bit_pos]);
           }
           std::sort(d_path_list.begin(), d_path_list.end(), path_compare);
-
-//          for(unsigned int i = 0; i < d_path_list.size(); i++){
-//            std::cout << "set_info_bit->path_metrics: " << i << " --> " << d_path_list[i]->path_metric << std::endl;
-//          }
 
           for(unsigned int i = 0; i < d_list_size; i++) {
 
@@ -168,26 +163,11 @@ namespace gr {
       void
       scl_list::set_frozen_bit(const unsigned char frozen_bit, const int bit_pos)
       {
-        // does first half always own its vectors?
-        const int rev_pos = bit_reverse(bit_pos, d_block_power);
-
         for(unsigned int i = 0; i < d_active_path_counter; i++){
           d_path_list[i]->u_vec[bit_pos] = frozen_bit;
-          d_path_list[i]->path_metric = update_path_metric(d_path_list[i]->path_metric, d_path_list[i]->llr_vec[rev_pos], frozen_bit);
+          d_path_list[i]->path_metric = update_path_metric(d_path_list[i]->path_metric, d_path_list[i]->llr_vec[bit_pos], frozen_bit);
         }
         d_active_pos = 0;
-      }
-
-      long
-      scl_list::bit_reverse(long value, int active_bits) const
-      {
-        long r = 0;
-        for(int i = 0; i < active_bits; i++) {
-          r <<= 1;
-          r |= value & 1;
-          value >>= 1;
-        }
-        return r;
       }
 
       path::path():

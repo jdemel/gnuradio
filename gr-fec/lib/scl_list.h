@@ -55,7 +55,8 @@ namespace gr {
         void duplicate_path(path* target, const path* original);
         void branch_paths(path* target, path* original, const float llr);
         void steal_vector_ownership(path* target, path* original);
-        long bit_reverse(long value, int active_bits) const;
+
+        static void insert_bit_at_pos(unsigned char* u, const unsigned char ui, const unsigned int pos){u[pos >> 3] ^= ui << (7 - (pos % 8));};
 
         // comparator for std::sort
         static bool path_compare(path* first, path* second){return first->path_metric < second->path_metric;};
@@ -64,7 +65,7 @@ namespace gr {
         scl_list(const unsigned int list_size, const unsigned int block_size, const unsigned int block_power);
         virtual
         ~scl_list();
-        unsigned int size() const {return d_list_size;};
+        const unsigned int size() const {return d_list_size;};
         const unsigned int active_size() const {return d_active_path_counter;};
 
         path* initial_path() const {return d_path_list[0];};

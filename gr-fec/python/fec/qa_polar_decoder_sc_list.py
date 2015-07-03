@@ -104,7 +104,7 @@ class test_polar_decoder_sc_list(gr_unittest.TestCase):
         print "test_003_stream"
         nframes = 5
         is_packed = False
-        expo = 6
+        expo = 8
         block_size = 2 ** expo
         num_info_bits = 2 ** (expo - 1)
         max_list_size = 2 ** (expo - 2)

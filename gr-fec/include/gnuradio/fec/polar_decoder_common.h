@@ -46,6 +46,7 @@ namespace gr {
       int get_input_size(){return block_size() / (is_packed() ? 8 : 1);};
       int get_output_size(){return num_info_bits() / (is_packed() ? 8 : 1);};
       bool set_frame_size(unsigned int frame_size){return false;};
+      const char* get_output_conversion() {return "none";};
 
     private:
       const float D_LLR_FACTOR;
@@ -59,11 +60,15 @@ namespace gr {
       // preparation for decoding
       void initialize_llr_vector(float* llrs, const float* input);
       // basic algorithm methods
-      void butterfly(float* llrs, int call_row, int stage, unsigned char* u, const int u_num);
+      void butterfly(float* llrs, const int stage, unsigned char* u, const int u_num);
       void even_u_values(unsigned char* u_even, const unsigned char* u, const int u_num);
       void odd_xor_even_values(unsigned char* u_xor, const unsigned char* u, const int u_num);
+      void demortonize_values(unsigned char* u);
 
       void extract_info_bits(unsigned char* output, const unsigned char* input) const;
+
+      static void insert_bit_at_pos(unsigned char* u, const unsigned char ui, const unsigned int pos){u[pos >> 3] ^= ui << (7 - (pos % 8));};
+      static unsigned char fetch_bit_at_pos(const unsigned char* u, const unsigned int pos){return u[pos >> 3] >> (7 - (pos % 8));};
 
       // info shared among all implementations.
       std::vector<int> d_frozen_bit_positions;

@@ -52,7 +52,9 @@ namespace gr
         d_frozen_bit_counter(0)
     {
       d_llr_vec = (float*) volk_malloc(sizeof(float) * block_size * (block_power() + 1), volk_get_alignment());
+      memset(d_llr_vec, 0, sizeof(float) * block_size * (block_power() + 1));
       d_u_hat_vec = (unsigned char*) volk_malloc(block_size * (block_power() + 1), volk_get_alignment());
+      memset(d_u_hat_vec, 0, sizeof(unsigned char) * block_size * (block_power() + 1));
     }
 
     polar_decoder_sc::~polar_decoder_sc()
@@ -77,9 +79,8 @@ namespace gr
     {
       d_frozen_bit_counter = 0;
       for(int i = 0; i < block_size(); i++){
-        int row = bit_reverse(i, block_power());
-        butterfly(llrs, row, 0, u, i);
-        u[i] = retrieve_bit_from_llr(llrs[row], i);
+        butterfly(llrs, 0, u, i);
+        u[i] = retrieve_bit_from_llr(llrs[i], i);
       }
     }
 

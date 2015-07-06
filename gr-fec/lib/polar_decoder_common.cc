@@ -90,6 +90,7 @@ namespace gr {
 
       if(u_num % 2){
         const unsigned char f = u[u_num - 1];
+//        const unsigned char f = fetch_bit_at_pos(u, u_num - 1);
         *call_row_llr = llr_even(*upper_right_llr_ptr, *lower_right_llr_ptr, f);
         return;
       }
@@ -116,6 +117,18 @@ namespace gr {
         *u_even++ = *u;
         u += 2;
       }
+
+//      short* target = (short*) u_even;
+//      short* src = (short*) u;
+//
+//      const int iterations = std::max(1, u_num >> 3);
+//      for(int i = 0; i < iterations; i++){
+//        *target = *src << 1;
+//        demortonize_values((unsigned char*) target);
+//        u_even++;
+//        target = (short*) u_even;
+//        src++;
+//      }
     }
 
     void
@@ -127,10 +140,16 @@ namespace gr {
         u += 2;
       }
 
-//      const int iterations = u_num >> 6;
+//      short* target = (short*) u_xor;
+//      short* src = (short*) u;
+//
+//      const int iterations = std::max(1, u_num >> 3);
 //      for(int i = 0; i < iterations; i++){
-//        (long*) u_xor = ((long*) u) ^ (((long*) u) << 1);
-//        demortonize_values(u_xor);
+//        *target = *src ^ (*src << 1);
+//        demortonize_values((unsigned char*) target);
+//        u_xor++;
+//        target = (short*) u_xor;
+//        src++;
 //      }
     }
 
@@ -147,23 +166,30 @@ namespace gr {
         }
         input++;
       }
+
+//      unsigned int frozenbit_num = 0;
+//      for(int i = 0; i < block_size(); i++){
+//        if(frozenbit_num < d_frozen_bit_positions.size() && d_frozen_bit_positions.at(frozenbit_num) == i){
+//          frozenbit_num++;
+//        }
+//        else{
+//          *output++ = fetch_bit_at_pos(input, i); // *input;
+//        }
+//      }
     }
 
     void
     polar_decoder_common::demortonize_values(unsigned char* u)
     {
-      long* ut = (long*) u;
-      *ut &= 0xaaAAaaAAaaAAaaAA;
-      *ut = (*ut ^ (*ut << 1))  & 0xccCCccCCccCCccCC;
-      *ut = (*ut ^ (*ut << 2))  & 0xf0f0f0f0f0f0f0f0;
-      *ut = (*ut ^ (*ut << 4))  & 0xff00ff00ff00ff00;
-      *ut = (*ut ^ (*ut << 8))  & 0xffff0000ffff0000;
-      *ut = (*ut ^ (*ut << 16)) & 0xffffffff00000000;
+      *u &= 0xaa;                   // b0d0f0h0
+      *u = (*u ^ (*u << 1)) & 0xcc; // bd00fh00
+      *u = (*u ^ (*u << 2)) & 0xf0; // bdfh0000
 
-      //      *u = (*u << 1) & 0xaa;        // b0d0f0h0
-      //      *u = (*u ^ (*u << 1)) & 0xcc; // bd00fh00
-      //      *u = (*u ^ (*u << 2)) & 0x0f; // bdfh0000
-
+      unsigned char* u2 = u + 1;
+      *u2 &= 0xaa;                   // b0d0f0h0
+      *u2 = (*u2 ^ (*u2 << 1)) & 0xcc; // bd00fh00
+      *u2 = (*u2 ^ (*u2 << 2)) & 0xf0; // bdfh0000
+      *u ^= (*u2 >> 4);
     }
 
     void

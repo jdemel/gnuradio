@@ -70,6 +70,7 @@ namespace gr
       unsigned char *out = (unsigned char*) out_buffer;
       polar::path* init_path = d_scl->initial_path();
       initialize_llr_vector(init_path->llr_vec, in);
+      memset(init_path->u_vec, 0, sizeof(unsigned char) * block_size() * (block_power() + 1));
       decode_list();
       const polar::path* temp = d_scl->optimal_path();
       extract_info_bits(out, temp->u_vec);

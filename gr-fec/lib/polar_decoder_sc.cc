@@ -78,9 +78,12 @@ namespace gr
     polar_decoder_sc::sc_decode(float* llrs, unsigned char* u)
     {
       d_frozen_bit_counter = 0;
+      memset(u, 0, sizeof(unsigned char) * block_size() * block_power());
       for(int i = 0; i < block_size(); i++){
         butterfly(llrs, 0, u, i);
         u[i] = retrieve_bit_from_llr(llrs[i], i);
+//        const unsigned char bit = retrieve_bit_from_llr(llrs[i], i);
+//        insert_bit_at_pos(u, bit, i);
       }
     }
 

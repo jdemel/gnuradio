@@ -91,7 +91,9 @@ namespace gr {
             d_path_list[i + offset]->path_metric = update_path_metric(
                 d_path_list[i + offset]->path_metric, d_path_list[i + offset]->llr_vec[bit_pos], 1);
             d_path_list[i]->u_vec[bit_pos] = 0;
+//            insert_bit_at_pos(d_path_list[i]->u_vec, 0, bit_pos);
             d_path_list[i + offset]->u_vec[bit_pos] = 1;
+//            insert_bit_at_pos(d_path_list[i + offset]->u_vec, 1, bit_pos);
           }
         }
         else {
@@ -102,7 +104,6 @@ namespace gr {
           std::sort(d_path_list.begin(), d_path_list.end(), path_compare);
 
           for(unsigned int i = 0; i < d_list_size; i++) {
-
             if(!d_path_list[i]->owns_vectors) {
               int t_pos = d_list_size;
               while(!d_path_list[t_pos]->owns_vectors) {
@@ -110,9 +111,11 @@ namespace gr {
               }
               steal_vector_ownership(d_path_list[i], d_path_list[t_pos]);
               d_path_list[i]->u_vec[bit_pos] = 1;
+//              insert_bit_at_pos(d_path_list[i]->u_vec, 1, bit_pos);
             }
             else{
               d_path_list[i]->u_vec[bit_pos] = 0;
+//              insert_bit_at_pos(d_path_list[i]->u_vec, 0, bit_pos);
             }
           }
         }
@@ -164,6 +167,7 @@ namespace gr {
       scl_list::set_frozen_bit(const unsigned char frozen_bit, const int bit_pos)
       {
         for(unsigned int i = 0; i < d_active_path_counter; i++){
+//          insert_bit_at_pos(d_path_list[i]->u_vec, frozen_bit, bit_pos);
           d_path_list[i]->u_vec[bit_pos] = frozen_bit;
           d_path_list[i]->path_metric = update_path_metric(d_path_list[i]->path_metric, d_path_list[i]->llr_vec[bit_pos], frozen_bit);
         }

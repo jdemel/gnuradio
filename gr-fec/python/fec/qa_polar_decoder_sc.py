@@ -62,12 +62,13 @@ class test_polar_decoder_sc(gr_unittest.TestCase):
     def test_002_one_vector(self):
         print "test_002_one_vector"
         is_packed = False
-        block_power = 4
+        block_power = 8
         block_size = 2 ** block_power
         num_info_bits = 2 ** (block_power - 1)
         num_frozen_bits = block_size - num_info_bits
         frozen_bit_positions = get_frozen_bit_positions('polar', block_size, num_frozen_bits, 0.11)
         frozen_bit_values = np.array([0] * num_frozen_bits,)
+        print frozen_bit_positions
 
         python_decoder = PolarDecoder(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values)
 
@@ -96,6 +97,53 @@ class test_polar_decoder_sc(gr_unittest.TestCase):
         print("ref  :", ref)
 
         self.assertTupleEqual(tuple(res), tuple(ref))
+
+    def test_003_stream(self):
+        print "test_002_stream"
+        nframes = 3
+        is_packed = False
+        block_power = 8
+        block_size = 2 ** block_power
+        num_info_bits = 2 ** (block_power - 1)
+        num_frozen_bits = block_size - num_info_bits
+        frozen_bit_positions = get_frozen_bit_positions('polar', block_size, num_frozen_bits, 0.11)
+        frozen_bit_values = np.array([0] * num_frozen_bits,)
+        print frozen_bit_positions
+
+        python_decoder = PolarDecoder(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values)
+        encoder = PolarEncoder(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values)
+
+        bits = np.array([], dtype=int)
+        data = np.array([], dtype=int)
+        for n in range(nframes):
+            b = np.random.randint(2, size=num_info_bits)
+            d = encoder.encode(b)
+            bits = np.append(bits, b)
+            data = np.append(data, d)
+        # bits = np.ones(num_info_bits, dtype=int)
+        # bits = np.random.randint(2, size=num_info_bits)
+        # data = encoder.encode(bits)
+        # data = np.array([0, 1, 1, 0, 1, 0, 1, 0], dtype=int)
+        gr_data = -2.0 * data + 1.0
+
+        polar_decoder = fec.polar_decoder_sc.make(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values, is_packed)
+        src = blocks.vector_source_f(gr_data, False)
+        dec_block = extended_decoder(polar_decoder, None)
+        snk = blocks.vector_sink_b(1)
+
+        self.tb.connect(src, dec_block)
+        self.tb.connect(dec_block, snk)
+        self.tb.run()
+
+        res = np.array(snk.data()).astype(dtype=int)
+
+        # ref = python_decoder.decode(data)
+
+        print("input:", data)
+        print("res  :", res)
+        # print("ref  :", ref)
+
+        self.assertTupleEqual(tuple(res), tuple(bits))
 
 
 if __name__ == '__main__':

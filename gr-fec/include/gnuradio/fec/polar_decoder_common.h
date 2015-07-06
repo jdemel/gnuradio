@@ -68,7 +68,7 @@ namespace gr {
       void extract_info_bits(unsigned char* output, const unsigned char* input) const;
 
       static void insert_bit_at_pos(unsigned char* u, const unsigned char ui, const unsigned int pos){u[pos >> 3] ^= ui << (7 - (pos % 8));};
-      static unsigned char fetch_bit_at_pos(const unsigned char* u, const unsigned int pos){return u[pos >> 3] >> (7 - (pos % 8));};
+      static unsigned char fetch_bit_at_pos(const unsigned char* u, const unsigned int pos){return (u[pos >> 3] >> (7 - (pos % 8))) & 0x01;};
 
       // info shared among all implementations.
       std::vector<int> d_frozen_bit_positions;

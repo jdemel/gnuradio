@@ -19,37 +19,6 @@
 #
 
 import numpy as np
-import matplotlib.pyplot as plt
-
-def bsc_channel(p):
-    '''
-    binary symmetric channel (BSC)
-    output alphabet Y = {0, 1} and
-    W(0|0) = W(1|1) and W(1|0) = W(0|1)
-
-    this function returns a prob's vector for a BSC
-    p denotes an erroneous transistion
-    '''
-    if not (p >= 0.0 and p <= 1.0):
-        print "given p is out of range!"
-        return np.array([], dtype=float)
-
-    # 0 -> 0, 0 -> 1, 1 -> 0, 1 -> 1
-    W = np.array([[1 - p, p], [p, 1 - p]], dtype=float)
-    return W
-
-
-def bec_channel(eta):
-    '''
-    binary erasure channel (BEC)
-    for each y e Y
-    W(y|0) * W(y|1) = 0 or W(y|0) = W(y|1)
-    transistions are 1 -> 1 or 0 -> 0 or {0, 1} -> ? (erased symbol)
-    '''
-
-    # looks like BSC but should be interpreted differently.
-    W = np.array((1 - eta, eta, 1 - eta), dtype=float)
-    return W
 
 
 def odd_rec(iwn):

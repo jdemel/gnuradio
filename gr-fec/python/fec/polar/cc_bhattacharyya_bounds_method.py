@@ -26,11 +26,13 @@ def bhattacharyya_bounds(block_size, design_snr):
     '''
     Harish Vangala, Emanuele Viterbo, Yi Hong: 'A Comparative Study of Polar Code Constructions for the AWGN Channel', 2015
     In this paper it is called Bhattacharyya bounds channel construction and is abbreviated PCC-0
-    Actually used for BI-DMC-AWGN channels.
+    Best design SNR for block_size = 2048, R = 0.5, is 0dB.
+    Compare with Arikan: 'Channel Polarization: A Method for Constructing Capacity-Achieving Codes for Symmetric Binary-Input Memoryless Channels.
+    Proposition 5. inequalities turn into equalities for BEC channel. Otherwise they represent an upper bound.
     :return Z-parameters in natural bit-order. Choose according to desired rate.
     '''
     # minimum design snr = -1.5917 corresponds to BER = 0.5
-    block_power = int(np.log2(block_size))
+    block_power = power_of_2_int(block_size)
     s = 10 ** (design_snr / 10)  # 'initial z parameter'.
     print(block_size, block_power, design_snr, s)
     z_params = np.zeros(block_size, dtype=float)

@@ -161,10 +161,19 @@ def calculate_capacity(x):
     return -1. * x * np.log(x) - (1 - x) * np.log(1 - x)
 
 
+def discretize_awgn(mu, design_snr):
+    
+
+def tal_vardy_tpm_algorithm(block_size, info_size, design_snr):
+    block_power = power_of_2_int(block_size)
+    print(block_size, block_power, info_size, design_snr)
+
+
+
 def splitting_masses_algorithm(n, k):
     m = 2 ** n
     p0 = 1.0 / m
-    mass_vec
+    mass_vec = 0
 
 
 def main():

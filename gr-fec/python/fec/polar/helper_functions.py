@@ -22,6 +22,9 @@ import numpy as np
 from channel_construction_bec import get_bec_frozen_indices
 
 
+def power_of_2_int(num):
+    return int(np.log2(num))
+
 def is_power_of_two(num):
     if type(num) != int:
         return False  # make sure we only compute integers.

@@ -18,7 +18,19 @@
 # Boston, MA 02110-1301, USA.
 #
 
+'''
+Based on 2 papers:
+[1] Ido Tal, Alexander Vardy: 'How To Construct Polar Codes', 2013
+for an in-depth description of a widely used algorithm for channel construction.
+
+[2] Harish Vangala, Emanuele Viterbo, Yi Hong: 'A Comparative Study of Polar Code Constructions for the AWGN Channel', 2015
+for an overview of different approaches
+'''
+
+
 import numpy as np
+from scipy.optimize import fsolve
+from scipy.special import erf
 from helper_functions import *
 import matplotlib.pyplot as plt
 
@@ -161,8 +173,73 @@ def calculate_capacity(x):
     return -1. * x * np.log(x) - (1 - x) * np.log(1 - x)
 
 
+def solver_equation(val, s):
+    cw_lambda = codeword_lambda_callable(s)
+    ic_lambda = instantanious_capacity_callable()
+    return lambda y: ic_lambda(cw_lambda(y)) - val
+
+
+def solve_capacity(a, s):
+    eq = solver_equation(a, s)
+    res = fsolve(eq, 1)
+    return np.abs(res[0])  # only positive values needed.
+
+
+def codeword_lambda_callable(s):
+    return lambda y: np.exp(-2 * y * np.sqrt(2 * s))
+
+
+def codeword_lambda(y, s):
+    return codeword_lambda_callable(s)(y)
+
+
+def instantanious_capacity_callable():
+    return lambda x : 1 - np.log2(1 + x) + (x * np.log2(x) / (1 + x))
+
+
+def instantanious_capacity(x):
+    return instantanious_capacity_callable()(x)
+
+
+def q_function(x):
+    return (1. / np.sqrt(2 * np.pi)) * np.exp(-1. * (x ** 2) / 2)
+
+
 def discretize_awgn(mu, design_snr):
-    
+    '''
+    needed for Binary-AWGN channels.
+    in [1] described in Section VI
+    in [2] described as a function of the same name.
+    in both cases reduce infinite output alphabet to a finite output alphabet of a given channel.
+    Q(x) = (1 / sqrt(2 * pi) ) * integral (x to inf) exp(- x ^ 2 / 2) dx
+    '''
+    s = 10 ** (design_snr / 10)
+    a = np.zeros(mu + 1, dtype=float)
+    a[-1] = np.inf
+    for i in range(1, mu):
+        a[i] = solve_capacity(1. * i / mu, s)
+
+    plt.plot(a)
+    plt.show()
+
+    print(a)
+    sqrt2 = np.sqrt(2)
+    q_func = lambda x: (1. / np.sqrt(2 * np.pi)) * np.exp(-1. * (x ** 2) / 2)
+    t = erf(sqrt2)
+    factor = np.sqrt(2 * s)
+    print(factor)
+    tpm = np.zeros((2, mu))
+    for j in range(mu):
+        tpm[0][j] = q_func(factor + a[j]) - q_func(factor + a[j + 1])
+        tpm[1][j] = q_func(-1. * factor + a[j]) - q_func(-1. * factor + a[j + 1])
+
+    plt.plot(tpm[0])
+    plt.plot(tpm[1])
+    plt.show()
+
+    return tpm
+
+
 
 def tal_vardy_tpm_algorithm(block_size, info_size, design_snr):
     block_power = power_of_2_int(block_size)
@@ -183,16 +260,19 @@ def main():
     k = m // 2
     eta = 0.3
     p = 0.1
-    # z, c = wn_split_channel(m, p)
-    # print(z)
-    # print(c)
 
-    u = np.zeros(m, dtype=bool)
-    G = get_Gn(m).astype(dtype=bool)
-    print G
-    print np.dot(u, G)
+    design_snr = 2
+    mu = 1024
+
+    vec = discretize_awgn(mu, design_snr)
 
 
+    # qs = np.zeros(mu)
+    # for i in range(mu):
+    #     qs[i] = q_function(8. * i / mu)
+    # plt.plot(vec[0])
+    # plt.plot(vec[1])
+    # plt.show()
 
 if __name__ == '__main__':
     main()

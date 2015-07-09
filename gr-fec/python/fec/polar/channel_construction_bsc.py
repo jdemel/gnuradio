@@ -30,7 +30,7 @@ for an overview of different approaches
 
 import numpy as np
 from scipy.optimize import fsolve
-from scipy.special import erf
+from scipy.special import erfc
 from helper_functions import *
 import matplotlib.pyplot as plt
 
@@ -202,7 +202,8 @@ def instantanious_capacity(x):
 
 
 def q_function(x):
-    return (1. / np.sqrt(2 * np.pi)) * np.exp(-1. * (x ** 2) / 2)
+    # Q(x) = (1 / sqrt(2 * pi) ) * integral (x to inf) exp(- x ^ 2 / 2) dx
+    return .5 * erfc(x / np.sqrt(2))
 
 
 def discretize_awgn(mu, design_snr):
@@ -211,7 +212,11 @@ def discretize_awgn(mu, design_snr):
     in [1] described in Section VI
     in [2] described as a function of the same name.
     in both cases reduce infinite output alphabet to a finite output alphabet of a given channel.
-    Q(x) = (1 / sqrt(2 * pi) ) * integral (x to inf) exp(- x ^ 2 / 2) dx
+    idea:
+    1. instantaneous capacity C(x) in interval [0, 1]
+    2. split into mu intervals.
+    3. find corresponding output alphabet values y of likelihood ratio function lambda(y) inserted into C(x)
+    4. Calculate probability for each value given that a '0' or '1' is was transmitted.
     '''
     s = 10 ** (design_snr / 10)
     a = np.zeros(mu + 1, dtype=float)
@@ -219,38 +224,91 @@ def discretize_awgn(mu, design_snr):
     for i in range(1, mu):
         a[i] = solve_capacity(1. * i / mu, s)
 
-    plt.plot(a)
-    plt.show()
-
-    print(a)
-    sqrt2 = np.sqrt(2)
-    q_func = lambda x: (1. / np.sqrt(2 * np.pi)) * np.exp(-1. * (x ** 2) / 2)
-    t = erf(sqrt2)
     factor = np.sqrt(2 * s)
-    print(factor)
     tpm = np.zeros((2, mu))
     for j in range(mu):
-        tpm[0][j] = q_func(factor + a[j]) - q_func(factor + a[j + 1])
-        tpm[1][j] = q_func(-1. * factor + a[j]) - q_func(-1. * factor + a[j + 1])
-
-    plt.plot(tpm[0])
-    plt.plot(tpm[1])
-    plt.show()
+        tpm[0][j] = q_function(factor + a[j]) - q_function(factor + a[j + 1])
+        tpm[1][j] = q_function(-1. * factor + a[j]) - q_function(-1. * factor + a[j + 1])
 
     return tpm
 
 
-
-def tal_vardy_tpm_algorithm(block_size, info_size, design_snr):
+def tal_vardy_tpm_algorithm(block_size, info_size, design_snr, mu):
     block_power = power_of_2_int(block_size)
     print(block_size, block_power, info_size, design_snr)
+    channels = np.zeros((block_size, 2, mu))
+    channels[0] = discretize_awgn(mu, design_snr)
+
+    for j in range(block_power):
+        u = 2 ** j
+        for t in range(u - 1):
+            pass
 
 
+def merge_lr_based(q):
+    print(np.shape(q))
+    lrs = q[0] / q[1]
+    vals, indices, inv_indices = np.unique(lrs, return_index=True, return_inverse=True)
+    unq_cnt = np.bincount(inv_indices)
+    if np.max(unq_cnt) > 1:
+        print "wooohhhaaaa, duplicate!"
+        print(unq_cnt)
+        print(np.max(unq_cnt))
+    temp = q[:, np.sort(indices)]  # so far it does no harm. Does it do, what it is supposed to do?
+    temp *= unq_cnt
+    print(np.shape(temp))
+    return temp
 
-def splitting_masses_algorithm(n, k):
-    m = 2 ** n
-    p0 = 1.0 / m
-    mass_vec = 0
+
+def upper_convolve(tpm, mu):
+    q = np.zeros((2, mu ** 2))
+    idx = -1
+    for i in range(mu):
+        idx += 1
+        q[0, idx] = (tpm[0, i] ** 2 + tpm[1, i] ** 2) / 2
+        q[1, idx] = tpm[0, i] * tpm[1, i]
+        for j in range(i + 1, mu):
+            idx += 1
+            q[0, idx] = tpm[0, i] * tpm[0, j] + tpm[1, i] * tpm[1, j]
+            q[1, idx] = tpm[0, i] * tpm[1, j] + tpm[1, i] * tpm[0, j]
+            if q[0, idx] < q[1, idx]:
+                q[0, idx], q[1, idx] = swap_values(q[0, idx], q[1, idx])
+
+    idx += 1
+    q = np.delete(q, np.arange(idx, np.shape(q)[1]), axis=1)
+    q = merge_lr_based(q)
+    return q
+
+
+def swap_values(first, second):
+    return second, first
+
+
+def lower_convolve(tpm, mu):
+    q = np.zeros((2, mu * (mu + 1)))
+    idx = -1
+    for i in range(0, mu):
+        idx += 1
+        q[0, idx] = tpm[0, i] ** 2 / 2
+        q[1, idx] = tpm[1, i] ** 2 / 2
+        if q[0, idx] < q[1, idx]:
+            q[0, idx], q[1, idx] = swap_values(q[0, idx], q[1, idx])
+        idx += 1
+        q[1, idx] = q[0, idx] = tpm[0, i] * tpm[1, i]
+
+        for j in range(i + 1, mu):
+            idx += 1
+            q[0, idx] = tpm[0, i] * tpm[0, j]
+            q[1, idx] = tpm[1, i] * tpm[1, j]
+            if q[0, idx] < q[1, idx]:
+                q[0, idx], q[1, idx] = swap_values(q[0, idx], q[1, idx])
+            idx += 1
+            q[0, idx] = tpm[0, i] * tpm[1, j]
+            q[1, idx] = tpm[1, i] * tpm[0, j]
+            if q[0, idx] < q[1, idx]:
+                q[0, idx], q[1, idx] = swap_values(q[0, idx], q[1, idx])
+    q = merge_lr_based(q)
+    return q
 
 
 def main():
@@ -262,17 +320,26 @@ def main():
     p = 0.1
 
     design_snr = 2
-    mu = 1024
+    mu = 64
 
+    tal_vardy_tpm_algorithm(m, k, design_snr, mu)
     vec = discretize_awgn(mu, design_snr)
+    q = upper_convolve(vec, mu)
+    q = lower_convolve(vec, mu)
+    print(np.shape(q))
 
+    # # plt.plot(vec)
+    plt.plot(q[0])
+    plt.plot(q[1])
+    plt.show()
+    lrs = np.array([0, 1, 1, 2, 2, 1])
+    vals, indices, inv_indices = np.unique(lrs, return_index=True, return_inverse=True)
+    print vals
+    print(indices)
+    print(inv_indices)
+    unq_cnt = np.bincount(inv_indices)
+    print(unq_cnt)
 
-    # qs = np.zeros(mu)
-    # for i in range(mu):
-    #     qs[i] = q_function(8. * i / mu)
-    # plt.plot(vec[0])
-    # plt.plot(vec[1])
-    # plt.show()
 
 if __name__ == '__main__':
     main()

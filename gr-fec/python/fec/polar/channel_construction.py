@@ -18,10 +18,16 @@
 # Boston, MA 02110-1301, USA.
 #
 
+'''
+[0] Erdal Arikan: 'Channel Polarization: A Method for Constructing Capacity-Achieving Codes for Symmetric Binary-Input Memoryless Channels', 2009
+foundational paper for polar codes.
+'''
+
+
 import numpy as np
-from helper_functions import *
-from cc_bhattacharyya_bounds_method import *
-from channel_construction_bec import *
+from channel_construction_bec import calculate_bec_channel_capacities, calculate_bec_channel_z_parameters
+from channel_construction_bec import bhattacharyya_bounds, design_snr_to_bec_eta
+from channel_construction_bsc import tal_vardy_tpm_algorithm
 import matplotlib.pyplot as plt
 
 
@@ -85,19 +91,54 @@ def bhattacharyya_parameter(w):
     return z
 
 
+def get_frozen_bit_indices_from_capacities(chan_caps, nfrozen):
+    indexes = np.array([], dtype=int)
+    while indexes.size < nfrozen:
+        index = np.argmin(chan_caps)
+        indexes = np.append(indexes, index)
+        chan_caps[index] = 1.0
+    return np.sort(indexes)
+
+
+def get_frozen_bit_indices_from_z_parameters(z_params, nfrozen):
+    indexes = np.array([], dtype=int)
+    while indexes.size < nfrozen:
+        index = np.argmax(z_params)
+        indexes = np.append(indexes, index)
+        z_params[index] = 0.0
+    return np.sort(indexes)
+
+
+def get_bec_frozen_indices(nblock, kfrozen, eta):
+    bec_caps = calculate_bec_channel_capacities(eta, nblock)
+    positions = get_frozen_bit_indices_from_capacities(bec_caps, kfrozen)
+    return positions
+
+
+def frozen_bit_positions(block_size, info_size, design_snr=0.0):
+    if not design_snr > -1.5917:
+        print('bad value for design_nsr, must be > > -1.5917! default=0.0')
+        design_snr = 0.0
+    eta = design_snr_to_bec_eta(design_snr)
+    return get_bec_frozen_indices(block_size, block_size - info_size, eta)
+
+
 def main():
     print 'channel construction Bhattacharyya bounds by Arikan'
-    n = 10
+    n = 6
     m = 2 ** n
     k = m // 2
     eta = 0.3
     p = 0.1
-    design_snr = -1.0
+    design_snr = 2
+    mu = 16
 
-    z_params = bhattacharyya_bounds(m, design_snr)
-    plt.plot(z_params)
+    ztv = tal_vardy_tpm_algorithm(m, design_snr, mu)
+    plt.plot(ztv)
+
+    z_params = calculate_bec_channel_z_parameters(eta, m)
+    # plt.plot(z_params)
     plt.show()
-
 
 
 if __name__ == '__main__':

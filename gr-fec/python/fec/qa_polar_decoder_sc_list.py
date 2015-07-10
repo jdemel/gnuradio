@@ -29,11 +29,12 @@ from extended_encoder import extended_encoder
 from extended_decoder import extended_decoder
 from polar.encoder import PolarEncoder
 from polar.decoder import PolarDecoder
-from polar.helper_functions import get_frozen_bit_positions
-# from polar.helper_functions import bit_reverse_vector
-#
+import polar.channel_construction as cc
+
+
 # print('PID:', os.getpid())
 # raw_input('tell me smth')
+
 
 class test_polar_decoder_sc_list(gr_unittest.TestCase):
 
@@ -66,7 +67,7 @@ class test_polar_decoder_sc_list(gr_unittest.TestCase):
         num_info_bits = 2 ** (expo - 1)
         max_list_size = 2 ** (expo - 2)
         num_frozen_bits = block_size - num_info_bits
-        frozen_bit_positions = get_frozen_bit_positions('polar', block_size, num_frozen_bits, 0.11)
+        frozen_bit_positions = cc.frozen_bit_positions(block_size, num_info_bits, 0.0)
         frozen_bit_values = np.array([0] * num_frozen_bits,)
         print(frozen_bit_positions)
 
@@ -109,7 +110,7 @@ class test_polar_decoder_sc_list(gr_unittest.TestCase):
         num_info_bits = 2 ** (expo - 1)
         max_list_size = 2 ** (expo - 2)
         num_frozen_bits = block_size - num_info_bits
-        frozen_bit_positions = get_frozen_bit_positions('polar', block_size, num_frozen_bits, 0.11)
+        frozen_bit_positions = cc.frozen_bit_positions(block_size, num_info_bits, 0.0)
         frozen_bit_values = np.array([0] * num_frozen_bits,)
         print(frozen_bit_positions)
 

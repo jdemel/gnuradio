@@ -19,11 +19,11 @@
 #
 
 import numpy as np
-from channel_construction_bec import get_bec_frozen_indices
 
 
 def power_of_2_int(num):
     return int(np.log2(num))
+
 
 def is_power_of_two(num):
     if type(num) != int:
@@ -72,30 +72,6 @@ def pack_byte(bits):
     bits = np.concatenate((np.zeros(8 - len(bits), dtype=np.uint8), bits))
     res = np.packbits(bits)[0]
     return res
-
-
-def get_frozen_bit_positions(directory, n, k, p):
-    import glob, os
-    if not os.getcwd().endswith(directory):
-        os.chdir(directory)
-    prefix = 'frozen_bit_positions_'
-    prefix_len = len(prefix)
-    for file in glob.glob("*.npy"):
-        if file.find(prefix) < 0:
-            continue
-        filename = file
-        file = file[file.find(prefix) + prefix_len:]
-        file = file[:-4]
-        file = file.split('_')
-        nstr = [x for x in file if x.startswith('n')]
-        kstr = [x for x in file if x.startswith('k')]
-        pstr = [x for x in file if x.startswith('p')]
-        nstr = int(nstr[0][1:])
-        kstr = int(kstr[0][1:])
-        pstr = float(pstr[0][1:])
-        if n == nstr and k == kstr:
-            return np.load(filename)
-    return get_bec_frozen_indices(n, k, p)
 
 
 def main():

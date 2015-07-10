@@ -229,34 +229,65 @@ def discretize_awgn(mu, design_snr):
     for j in range(mu):
         tpm[0][j] = q_function(factor + a[j]) - q_function(factor + a[j + 1])
         tpm[1][j] = q_function(-1. * factor + a[j]) - q_function(-1. * factor + a[j + 1])
-
     return tpm
 
 
-def tal_vardy_tpm_algorithm(block_size, info_size, design_snr, mu):
+def calculate_delta_I(a, b, at, bt):
+    c = lambda a, b: -1. * (a + b) * np.log2((a + b) / 2) + a * np.log2(a) + b * np.log2(b)
+    return c(a, b) + c(at, bt) - c(a + at, b + bt)
+
+
+def quantize_to_size(tpm, mu):
+    L = np.shape(tpm)[1]
+    delta_i_vec = np.zeros(L - 1)
+    for i in range(L - 1):
+        delta_i_vec[i] = calculate_delta_I(tpm[0, i], tpm[1, i], tpm[0, i + 1], tpm[1, i + 1])
+
+    for i in range(L - mu):
+        d = np.argmin(delta_i_vec)
+        ap = tpm[0, d] + tpm[0, d + 1]
+        bp = tpm[1, d] + tpm[1, d + 1]
+        if d > 0:
+            delta_i_vec[d - 1] = calculate_delta_I(tpm[0, d - 1], tpm[1, d - 1], ap, bp)
+        if d < delta_i_vec.size - 1:
+            delta_i_vec[d + 1] = calculate_delta_I(ap, bp, tpm[0, d + 1], tpm[1, d + 1])
+        delta_i_vec = np.delete(delta_i_vec, d)
+        tpm = np.delete(tpm, d, axis=1)
+
+        tpm[0, d] = ap
+        tpm[1, d] = bp
+    return tpm
+
+
+def tal_vardy_tpm_algorithm(block_size, design_snr, mu):
     block_power = power_of_2_int(block_size)
-    print(block_size, block_power, info_size, design_snr)
     channels = np.zeros((block_size, 2, mu))
     channels[0] = discretize_awgn(mu, design_snr)
 
-    for j in range(block_power):
+    for j in range(0, block_power):
         u = 2 ** j
-        for t in range(u - 1):
-            pass
+        for t in range(u):
+            print('u=', u, ', t=', t)
+            ch1 = upper_convolve(channels[t], mu)
+            ch2 = lower_convolve(channels[t], mu)
+            channels[t] = quantize_to_size(ch1, mu)
+            channels[u + t] = quantize_to_size(ch2, mu)
+
+
+    z = np.zeros(block_size)
+    for i in range(block_size):
+        z[i] = np.sum(channels[i][1])
+    return z
+
 
 
 def merge_lr_based(q):
-    print(np.shape(q))
     lrs = q[0] / q[1]
     vals, indices, inv_indices = np.unique(lrs, return_index=True, return_inverse=True)
     unq_cnt = np.bincount(inv_indices)
-    if np.max(unq_cnt) > 1:
-        print "wooohhhaaaa, duplicate!"
-        print(unq_cnt)
-        print(np.max(unq_cnt))
-    temp = q[:, np.sort(indices)]  # so far it does no harm. Does it do, what it is supposed to do?
+    # compare [1] (20). Ordering of representatives according to LRs.
+    temp = q[:, indices]  # so far it does no harm. Does it do, what it is supposed to do?
     temp *= unq_cnt
-    print(np.shape(temp))
     return temp
 
 
@@ -313,32 +344,19 @@ def lower_convolve(tpm, mu):
 
 def main():
     print 'channel construction BSC main'
-    n = 3
+    n = 6
     m = 2 ** n
     k = m // 2
     eta = 0.3
     p = 0.1
 
-    design_snr = 2
-    mu = 64
+    design_snr = 0.0
+    mu = 16
 
-    tal_vardy_tpm_algorithm(m, k, design_snr, mu)
-    vec = discretize_awgn(mu, design_snr)
-    q = upper_convolve(vec, mu)
-    q = lower_convolve(vec, mu)
-    print(np.shape(q))
-
-    # # plt.plot(vec)
-    plt.plot(q[0])
-    plt.plot(q[1])
+    z_params = tal_vardy_tpm_algorithm(m, design_snr, mu)
+    plt.plot(z_params)
     plt.show()
-    lrs = np.array([0, 1, 1, 2, 2, 1])
-    vals, indices, inv_indices = np.unique(lrs, return_index=True, return_inverse=True)
-    print vals
-    print(indices)
-    print(inv_indices)
-    unq_cnt = np.bincount(inv_indices)
-    print(unq_cnt)
+
 
 
 if __name__ == '__main__':

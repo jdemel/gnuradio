@@ -233,6 +233,7 @@ def discretize_awgn(mu, design_snr):
 
 
 def calculate_delta_I(a, b, at, bt):
+    # calculate capacity delta.
     c = lambda a, b: -1. * (a + b) * np.log2((a + b) / 2) + a * np.log2(a) + b * np.log2(b)
     return c(a, b) + c(at, bt) - c(a + at, b + bt)
 
@@ -253,9 +254,9 @@ def quantize_to_size(tpm, mu):
             delta_i_vec[d + 1] = calculate_delta_I(ap, bp, tpm[0, d + 1], tpm[1, d + 1])
         delta_i_vec = np.delete(delta_i_vec, d)
         tpm = np.delete(tpm, d, axis=1)
-
         tpm[0, d] = ap
         tpm[1, d] = bp
+
     return tpm
 
 
@@ -267,7 +268,7 @@ def tal_vardy_tpm_algorithm(block_size, design_snr, mu):
     for j in range(0, block_power):
         u = 2 ** j
         for t in range(u):
-            print('u=', u, ', t=', t)
+            print('u=', u, ', t=', t, ', u+t=', u + t)
             ch1 = upper_convolve(channels[t], mu)
             ch2 = lower_convolve(channels[t], mu)
             channels[t] = quantize_to_size(ch1, mu)
@@ -277,17 +278,21 @@ def tal_vardy_tpm_algorithm(block_size, design_snr, mu):
     z = np.zeros(block_size)
     for i in range(block_size):
         z[i] = np.sum(channels[i][1])
-    return z
-
+    return z[bit_reverse_vector(np.arange(block_size), block_power)]
 
 
 def merge_lr_based(q):
     lrs = q[0] / q[1]
     vals, indices, inv_indices = np.unique(lrs, return_index=True, return_inverse=True)
-    unq_cnt = np.bincount(inv_indices)
     # compare [1] (20). Ordering of representatives according to LRs.
-    temp = q[:, indices]  # so far it does no harm. Does it do, what it is supposed to do?
-    temp *= unq_cnt
+    temp = np.zeros((2, len(indices)), dtype=float)
+    for i in range(len(indices)):
+        merge_pos = np.where(inv_indices == i)[0]
+        sum_items = q[:, merge_pos]
+        if merge_pos.size > 1:
+            sum_items = np.sum(q[:, merge_pos], axis=1)
+        temp[0, i] = sum_items[0]
+        temp[1, i] = sum_items[1]
     return temp
 
 
@@ -296,10 +301,12 @@ def upper_convolve(tpm, mu):
     idx = -1
     for i in range(mu):
         idx += 1
+        # print(i, idx)
         q[0, idx] = (tpm[0, i] ** 2 + tpm[1, i] ** 2) / 2
         q[1, idx] = tpm[0, i] * tpm[1, i]
         for j in range(i + 1, mu):
             idx += 1
+            # print(i, idx)
             q[0, idx] = tpm[0, i] * tpm[0, j] + tpm[1, i] * tpm[1, j]
             q[1, idx] = tpm[0, i] * tpm[1, j] + tpm[1, i] * tpm[0, j]
             if q[0, idx] < q[1, idx]:
@@ -320,12 +327,13 @@ def lower_convolve(tpm, mu):
     idx = -1
     for i in range(0, mu):
         idx += 1
-        q[0, idx] = tpm[0, i] ** 2 / 2
-        q[1, idx] = tpm[1, i] ** 2 / 2
+        q[0, idx] = (tpm[0, i] ** 2) / 2
+        q[1, idx] = (tpm[1, i] ** 2) / 2
         if q[0, idx] < q[1, idx]:
             q[0, idx], q[1, idx] = swap_values(q[0, idx], q[1, idx])
         idx += 1
-        q[1, idx] = q[0, idx] = tpm[0, i] * tpm[1, i]
+        q[0, idx] = tpm[0, i] * tpm[1, i]
+        q[1, idx] = q[0, idx]
 
         for j in range(i + 1, mu):
             idx += 1
@@ -338,8 +346,41 @@ def lower_convolve(tpm, mu):
             q[1, idx] = tpm[1, i] * tpm[0, j]
             if q[0, idx] < q[1, idx]:
                 q[0, idx], q[1, idx] = swap_values(q[0, idx], q[1, idx])
+    idx += 1
+    q = np.delete(q, np.arange(idx, np.shape(q)[1]), axis=1)
     q = merge_lr_based(q)
     return q
+
+
+def probability_w2(y1, y2, u1, u2, p):
+    w0 = 0.0
+    w1 = 0.0
+    if y1 == (u1 + u2) % 2:
+        w0 = 1 - p
+    else:
+        w0 = p
+    if y2 == u2:
+        w1 = 1 - p
+    else:
+        w1 = p
+    return w0 * w1
+
+
+def upper_convolve_w2(p):
+    print(probability_w2(0, 0, 0, 0, p))
+    print(probability_w2(0, 0, 0, 1, p))
+    w000 = .5 * (probability_w2(0, 0, 0, 0, p) + probability_w2(0, 0, 0, 1, p))
+    print(w000)
+
+    vec = np.zeros((2, 4), dtype=float)
+    for u1 in range(2):
+        idx = 0
+        for y1 in range(2):
+            for y2 in range(2):
+                vec[u1, idx] = .5 * (probability_w2(y1, y2, u1, 0, p) + probability_w2(y1, y2, u1, 1, p))
+                idx += 1
+    print(vec)
+    return vec
 
 
 def main():
@@ -353,9 +394,33 @@ def main():
     design_snr = 0.0
     mu = 16
 
-    z_params = tal_vardy_tpm_algorithm(m, design_snr, mu)
-    plt.plot(z_params)
-    plt.show()
+
+
+    tpm = discretize_awgn(mu, design_snr)
+    print('discretized channel')
+    print(tpm)
+    print(np.sum(tpm))
+
+    tpm = upper_convolve(tpm, mu)
+    print('after upper_convolve')
+    print(np.shape(tpm))
+    print(np.sum(tpm))
+
+    # tpm = lower_convolve(tpm, mu)
+    # print('after lower_convolve')
+    # print(np.shape(tpm))
+    # print(np.sum(tpm))
+
+    tpm = quantize_to_size(tpm, mu)
+    print('quantize_to_size')
+    print(np.sum(tpm))
+
+    tpm = upper_convolve(tpm, mu)
+    print('after upper_convolve')
+    print(np.shape(tpm))
+    print(np.sum(tpm))
+
+
 
 
 

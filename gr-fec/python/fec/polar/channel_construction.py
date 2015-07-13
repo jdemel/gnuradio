@@ -125,7 +125,7 @@ def frozen_bit_positions(block_size, info_size, design_snr=0.0):
 
 def main():
     print 'channel construction Bhattacharyya bounds by Arikan'
-    n = 6
+    n = 8
     m = 2 ** n
     k = m // 2
     eta = 0.3
@@ -134,10 +134,27 @@ def main():
     mu = 16
 
     ztv = tal_vardy_tpm_algorithm(m, design_snr, mu)
+    scaling_factor = 1. / np.max(ztv)
+    ztv *= scaling_factor
     plt.plot(ztv)
+    # plt.plot(ztv * (1.4 * (10 ** 19)))
 
     z_params = calculate_bec_channel_z_parameters(eta, m)
-    # plt.plot(z_params)
+    plt.plot(z_params)
+    plt.show()
+
+    ztv_indices = get_frozen_bit_indices_from_z_parameters(ztv, k)
+    upper_indices = get_frozen_bit_indices_from_z_parameters(z_params, k)
+
+    first = np.zeros(m)
+    first[ztv_indices] = 1.0
+    second = np.zeros(m)
+    second[upper_indices] = 1.0
+    plt.plot(first)
+    plt.plot(second)
+    for i in range(len(first)):
+        if not first[i] == second[i]:
+            plt.axvline(i, color='r')
     plt.show()
 
 

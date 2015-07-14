@@ -28,11 +28,11 @@ for an overview of different approaches
 '''
 
 
-import numpy as np
 from scipy.optimize import fsolve
 from scipy.special import erfc
 from helper_functions import *
 import matplotlib.pyplot as plt
+from channel_construction_bec import bhattacharyya_bounds
 
 
 def get_Bn(n):
@@ -90,87 +90,11 @@ def bhattacharyya_parameter(w):
     # sum over all y e Y for sqrt( W(y|0) * W(y|1) )
     dim = np.shape(w)
     ydim = dim[0]
-    xdim = dim[1]
     z = 0.0
     for y in range(ydim):
-        z += np.sqrt(w[y][0] * w[y][1])
+        z += np.sqrt(w[0, y] * w[1, y])
     # need all
     return z
-
-
-def w_transition_prob(y, u, p):
-    return p[y == u]
-    # return 1 - p if y == u else p
-
-# @profile
-def calculate_joint_transition_probability(N, y, x, transition_probs):
-    single_ws = np.empty(N)
-    single_ws[y == x] = transition_probs[True]
-    single_ws[y != x] = transition_probs[False]
-    return np.prod(single_ws)
-
-
-# @profile
-def w_split_prob(y, u, G, transition_probs):
-    ''' Calculate channel splitting probabilities. '''
-    N = len(y)  # number of combined channels
-    df = N - len(u)  # degrees of freedom.
-    prob = 0.0
-    for uf in range(2 ** df):
-        utemp = unpack_byte(np.array([uf, ]), df)
-        ub = np.concatenate((u, utemp))
-        x = np.dot(ub, G) % 2
-        true_num = np.sum(y == x)
-        false_num = N - true_num
-        w = (transition_probs[True] ** true_num) * (transition_probs[False] ** false_num)
-        # w = calculate_joint_transition_probability(N, y, x, transition_probs)
-        prob += w
-    divider = 1.0 / (2 ** (N - 1))
-    return divider * prob
-
-# @profile
-def wn_split_channel(N, p):
-    G = get_Gn(N)
-    y = np.zeros((N, ), dtype=np.uint8)
-    n = 1
-    u = np.zeros((n + 1, ), dtype=np.uint8)
-    transition_probs = np.array([p, 1 - p], dtype=float)
-
-    z_params = []
-    c_params = []
-    for w in range(N):
-        nentries = (2 ** N) * (2 ** w)
-        print "for w=", w, " nentries=", nentries
-        w_probs = np.zeros((nentries, 2), dtype=float)
-        for y in range(2 ** N):
-            yb = unpack_byte(np.array([y, ]), N)
-            for u in range(2 ** (w + 1)):
-                ub = unpack_byte(np.array([u, ]), w + 1)
-                wp = w_split_prob(yb, ub, G, transition_probs)
-                ufixed = ub[0:-1]
-                yindex = y * (2 ** w) + pack_byte(ufixed)
-                uindex = ub[-1]
-                w_probs[yindex][uindex] = wp
-
-        z = bhattacharyya_parameter(w_probs)
-        z_params.append(z)
-        c = mutual_information(w_probs)
-        c_params.append(c)
-        print "W=", w, "Z=", z, "capacity=", c
-
-    return z_params, c_params
-
-
-def calculate_z_param(x):
-    # variables etc taken from paper bei Ido Tal et al.
-    # name there is f(x)
-    # x is the cross over probability of a BSC.
-    return 2 * np.sqrt(x * (1 - x))
-
-
-def calculate_capacity(x):
-    # in paper it is called g(x)
-    return -1. * x * np.log(x) - (1 - x) * np.log(1 - x)
 
 
 def solver_equation(val, s):
@@ -239,7 +163,10 @@ def calculate_delta_I(a, b, at, bt):
 
 
 def quantize_to_size(tpm, mu):
+    # This is a degrading merge, compare [1]
     L = np.shape(tpm)[1]
+    if not mu < L:
+        print('WARNING: This channel gets too small!')
     delta_i_vec = np.zeros(L - 1)
     for i in range(L - 1):
         delta_i_vec[i] = calculate_delta_I(tpm[0, i], tpm[1, i], tpm[0, i + 1], tpm[1, i + 1])
@@ -256,14 +183,19 @@ def quantize_to_size(tpm, mu):
         tpm = np.delete(tpm, d, axis=1)
         tpm[0, d] = ap
         tpm[1, d] = bp
-
     return tpm
+
+
+def upper_bound_z_params(z, block_size, design_snr):
+    upper_bound = bhattacharyya_bounds(design_snr, block_size)
+    z = np.minimum(z, upper_bound)
+    return z
 
 
 def tal_vardy_tpm_algorithm(block_size, design_snr, mu):
     block_power = power_of_2_int(block_size)
     channels = np.zeros((block_size, 2, mu))
-    channels[0] = discretize_awgn(mu, design_snr)
+    channels[0] = discretize_awgn(mu, design_snr) * 2
 
     for j in range(0, block_power):
         u = 2 ** j
@@ -274,18 +206,23 @@ def tal_vardy_tpm_algorithm(block_size, design_snr, mu):
             channels[t] = quantize_to_size(ch1, mu)
             channels[u + t] = quantize_to_size(ch2, mu)
 
-
     z = np.zeros(block_size)
     for i in range(block_size):
-        z[i] = np.sum(channels[i][1])
-    return z[bit_reverse_vector(np.arange(block_size), block_power)]
+        # z[i] = np.sum(channels[i][1])
+        z[i] = bhattacharyya_parameter(channels[i])
+
+    z = z[bit_reverse_vector(np.arange(block_size), block_power)]
+    z = upper_bound_z_params(z, block_size, design_snr)
+    return z
 
 
-def merge_lr_based(q):
+def merge_lr_based(q, mu):
     lrs = q[0] / q[1]
     vals, indices, inv_indices = np.unique(lrs, return_index=True, return_inverse=True)
     # compare [1] (20). Ordering of representatives according to LRs.
     temp = np.zeros((2, len(indices)), dtype=float)
+    if vals.size < mu:
+        return q
     for i in range(len(indices)):
         merge_pos = np.where(inv_indices == i)[0]
         sum_items = q[:, merge_pos]
@@ -301,12 +238,10 @@ def upper_convolve(tpm, mu):
     idx = -1
     for i in range(mu):
         idx += 1
-        # print(i, idx)
         q[0, idx] = (tpm[0, i] ** 2 + tpm[1, i] ** 2) / 2
         q[1, idx] = tpm[0, i] * tpm[1, i]
         for j in range(i + 1, mu):
             idx += 1
-            # print(i, idx)
             q[0, idx] = tpm[0, i] * tpm[0, j] + tpm[1, i] * tpm[1, j]
             q[1, idx] = tpm[0, i] * tpm[1, j] + tpm[1, i] * tpm[0, j]
             if q[0, idx] < q[1, idx]:
@@ -314,12 +249,9 @@ def upper_convolve(tpm, mu):
 
     idx += 1
     q = np.delete(q, np.arange(idx, np.shape(q)[1]), axis=1)
-    q = merge_lr_based(q)
+    q = merge_lr_based(q, mu)
+    q = normalize_q(q, tpm)
     return q
-
-
-def swap_values(first, second):
-    return second, first
 
 
 def lower_convolve(tpm, mu):
@@ -348,39 +280,20 @@ def lower_convolve(tpm, mu):
                 q[0, idx], q[1, idx] = swap_values(q[0, idx], q[1, idx])
     idx += 1
     q = np.delete(q, np.arange(idx, np.shape(q)[1]), axis=1)
-    q = merge_lr_based(q)
+    q = merge_lr_based(q, mu)
+    q = normalize_q(q, tpm)
     return q
 
 
-def probability_w2(y1, y2, u1, u2, p):
-    w0 = 0.0
-    w1 = 0.0
-    if y1 == (u1 + u2) % 2:
-        w0 = 1 - p
-    else:
-        w0 = p
-    if y2 == u2:
-        w1 = 1 - p
-    else:
-        w1 = p
-    return w0 * w1
+def swap_values(first, second):
+    return second, first
 
 
-def upper_convolve_w2(p):
-    print(probability_w2(0, 0, 0, 0, p))
-    print(probability_w2(0, 0, 0, 1, p))
-    w000 = .5 * (probability_w2(0, 0, 0, 0, p) + probability_w2(0, 0, 0, 1, p))
-    print(w000)
-
-    vec = np.zeros((2, 4), dtype=float)
-    for u1 in range(2):
-        idx = 0
-        for y1 in range(2):
-            for y2 in range(2):
-                vec[u1, idx] = .5 * (probability_w2(y1, y2, u1, 0, p) + probability_w2(y1, y2, u1, 1, p))
-                idx += 1
-    print(vec)
-    return vec
+def normalize_q(q, tpm):
+    original_factor = np.sum(tpm)
+    next_factor = np.sum(q)
+    factor = original_factor / next_factor
+    return q * factor
 
 
 def main():
@@ -388,40 +301,17 @@ def main():
     n = 6
     m = 2 ** n
     k = m // 2
-    eta = 0.3
-    p = 0.1
-
-    design_snr = 0.0
+    design_snr = 0.5
     mu = 16
 
+    q = discretize_awgn(mu, design_snr)
 
-
-    tpm = discretize_awgn(mu, design_snr)
-    print('discretized channel')
-    print(tpm)
-    print(np.sum(tpm))
-
-    tpm = upper_convolve(tpm, mu)
-    print('after upper_convolve')
-    print(np.shape(tpm))
-    print(np.sum(tpm))
-
-    # tpm = lower_convolve(tpm, mu)
-    # print('after lower_convolve')
-    # print(np.shape(tpm))
-    # print(np.sum(tpm))
-
-    tpm = quantize_to_size(tpm, mu)
-    print('quantize_to_size')
-    print(np.sum(tpm))
-
-    tpm = upper_convolve(tpm, mu)
-    print('after upper_convolve')
-    print(np.shape(tpm))
-    print(np.sum(tpm))
-
-
-
+    tal_vardy_tpm_algorithm(m, design_snr, mu)
+    print('discretized:', np.sum(q))
+    qu = upper_convolve(q, mu)
+    print('upper_convolve:', np.sum(qu))
+    q0 = lower_convolve(q, mu)
+    print('lower_convolve:', np.sum(q0))
 
 
 if __name__ == '__main__':

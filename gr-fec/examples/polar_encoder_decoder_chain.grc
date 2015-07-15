@@ -48,7 +48,7 @@
     </param>
     <param>
       <key>generate_options</key>
-      <value>no_gui</value>
+      <value>qt_gui</value>
     </param>
     <param>
       <key>id</key>
@@ -108,6 +108,49 @@
     <param>
       <key>value</key>
       <value>2 ** 22</value>
+    </param>
+  </block>
+  <block>
+    <key>variable_polar_code_configurator</key>
+    <param>
+      <key>num_info_bits</key>
+      <value>128</value>
+    </param>
+    <param>
+      <key>block_size</key>
+      <value>256</value>
+    </param>
+    <param>
+      <key>channel</key>
+      <value>bsc</value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(600, 139)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>polar_config</value>
+    </param>
+    <param>
+      <key>design_snr</key>
+      <value>0.5</value>
+    </param>
+    <param>
+      <key>mu</key>
+      <value>16</value>
     </param>
   </block>
   <block>
@@ -216,11 +259,11 @@
     </param>
     <param>
       <key>frozen_bit_positions</key>
-      <value>range(128)</value>
+      <value>polar_config['positions']</value>
     </param>
     <param>
       <key>frozen_bit_values</key>
-      <value>[0,] * 128</value>
+      <value>polar_config['values']</value>
     </param>
     <param>
       <key>_coordinate</key>

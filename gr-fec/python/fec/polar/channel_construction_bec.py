@@ -19,9 +19,20 @@
 #
 
 import numpy as np
-# from helper_functions import *
 import helper_functions as hf
 
+
+def bec_channel(eta):
+    '''
+    binary erasure channel (BEC)
+    for each y e Y
+    W(y|0) * W(y|1) = 0 or W(y|0) = W(y|1)
+    transistions are 1 -> 1 or 0 -> 0 or {0, 1} -> ? (erased symbol)
+    '''
+
+    # looks like BSC but should be interpreted differently.
+    W = np.array((1 - eta, eta, 1 - eta), dtype=float)
+    return W
 
 def odd_rec(iwn):
     return iwn ** 2

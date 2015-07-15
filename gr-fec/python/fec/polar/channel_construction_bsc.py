@@ -35,6 +35,24 @@ import matplotlib.pyplot as plt
 from channel_construction_bec import bhattacharyya_bounds
 
 
+def bsc_channel(p):
+    '''
+    binary symmetric channel (BSC)
+    output alphabet Y = {0, 1} and
+    W(0|0) = W(1|1) and W(1|0) = W(0|1)
+
+    this function returns a prob's vector for a BSC
+    p denotes an erroneous transistion
+    '''
+    if not (p >= 0.0 and p <= 1.0):
+        print "given p is out of range!"
+        return np.array([], dtype=float)
+
+    # 0 -> 0, 0 -> 1, 1 -> 0, 1 -> 1
+    W = np.array([[1 - p, p], [p, 1 - p]], dtype=float)
+    return W
+
+
 def get_Bn(n):
     # this is a bit reversal matrix.
     lw = int(np.log2(n))  # number of used bits
@@ -83,18 +101,6 @@ def mutual_information(w):
             i += v
     i /= 2.0
     return i
-
-
-def bhattacharyya_parameter(w):
-    '''bhattacharyya parameter is a measure of similarity between two prob. distributions'''
-    # sum over all y e Y for sqrt( W(y|0) * W(y|1) )
-    dim = np.shape(w)
-    ydim = dim[0]
-    z = 0.0
-    for y in range(ydim):
-        z += np.sqrt(w[0, y] * w[1, y])
-    # need all
-    return z
 
 
 def solver_equation(val, s):

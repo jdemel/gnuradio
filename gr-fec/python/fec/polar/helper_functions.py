@@ -74,6 +74,34 @@ def pack_byte(bits):
     return res
 
 
+def mutual_information(w):
+    '''
+    calculate mutual information I(W)
+    I(W) = sum over y e Y ( sum over x e X ( ... ) )
+    .5 W(y|x) log frac { W(y|x) }{ .5 W(y|0) + .5 W(y|1) }
+    '''
+    ydim, xdim = np.shape(w)
+    i = 0.0
+    for y in range(ydim):
+        for x in range(xdim):
+            v = w[y][x] * np.log2(w[y][x] / (0.5 * w[y][0] + 0.5 * w[y][1]))
+            i += v
+    i /= 2.0
+    return i
+
+
+def bhattacharyya_parameter(w):
+    '''bhattacharyya parameter is a measure of similarity between two prob. distributions'''
+    # sum over all y e Y for sqrt( W(y|0) * W(y|1) )
+    dim = np.shape(w)
+    ydim = dim[0]
+    z = 0.0
+    for y in range(ydim):
+        z += np.sqrt(w[0, y] * w[1, y])
+    # need all
+    return z
+
+
 def main():
     print 'helper functions'
 

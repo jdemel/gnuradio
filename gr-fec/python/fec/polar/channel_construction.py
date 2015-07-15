@@ -117,7 +117,7 @@ def get_bec_frozen_indices(nblock, kfrozen, eta):
 
 def frozen_bit_positions(block_size, info_size, design_snr=0.0):
     if not design_snr > -1.5917:
-        print('bad value for design_nsr, must be > > -1.5917! default=0.0')
+        print('bad value for design_nsr, must be > -1.5917! default=0.0')
         design_snr = 0.0
     eta = design_snr_to_bec_eta(design_snr)
     return get_bec_frozen_indices(block_size, block_size - info_size, eta)

@@ -156,20 +156,24 @@ def discretize_awgn(mu, design_snr):
     return tpm
 
 
-def calculate_delta_I(a, b, at, bt):
-    # calculate capacity delta.
-    c = lambda a, b: -1. * (a + b) * np.log2((a + b) / 2) + a * np.log2(a) + b * np.log2(b)
-    return c(a, b) + c(at, bt) - c(a + at, b + bt)
+def instant_capacity_delta_callable():
+    return lambda a, b: -1. * (a + b) * np.log2((a + b) / 2) + a * np.log2(a) + b * np.log2(b)
+
+
+def capacity_delta_callable():
+    c = instant_capacity_delta_callable()
+    return lambda a, b, at, bt: c(a, b) + c(at, bt) - c(a + at, b + bt)
 
 
 def quantize_to_size(tpm, mu):
     # This is a degrading merge, compare [1]
+    calculate_delta_I = capacity_delta_callable()
     L = np.shape(tpm)[1]
     if not mu < L:
         print('WARNING: This channel gets too small!')
-    delta_i_vec = np.zeros(L - 1)
-    for i in range(L - 1):
-        delta_i_vec[i] = calculate_delta_I(tpm[0, i], tpm[1, i], tpm[0, i + 1], tpm[1, i + 1])
+
+    # lambda works on vectors just fine. Use Numpy vector awesomeness.
+    delta_i_vec = calculate_delta_I(tpm[0, 0:-1], tpm[1, 0:-1], tpm[0, 1:], tpm[1, 1:])
 
     for i in range(L - mu):
         d = np.argmin(delta_i_vec)
@@ -200,7 +204,7 @@ def tal_vardy_tpm_algorithm(block_size, design_snr, mu):
     for j in range(0, block_power):
         u = 2 ** j
         for t in range(u):
-            print('u=', u, ', t=', t, ', u+t=', u + t)
+            print("(u={0}, t={1}) = {2}".format(u, t, u + t))
             ch1 = upper_convolve(channels[t], mu)
             ch2 = lower_convolve(channels[t], mu)
             channels[t] = quantize_to_size(ch1, mu)
@@ -298,20 +302,25 @@ def normalize_q(q, tpm):
 
 def main():
     print 'channel construction BSC main'
-    n = 6
+    n = 8
     m = 2 ** n
     k = m // 2
     design_snr = 0.5
-    mu = 16
+    mu = 32
 
-    q = discretize_awgn(mu, design_snr)
 
-    tal_vardy_tpm_algorithm(m, design_snr, mu)
-    print('discretized:', np.sum(q))
-    qu = upper_convolve(q, mu)
-    print('upper_convolve:', np.sum(qu))
-    q0 = lower_convolve(q, mu)
-    print('lower_convolve:', np.sum(q0))
+    z_params = tal_vardy_tpm_algorithm(m, design_snr, mu)
+    plt.plot(z_params)
+    plt.show()
+
+    # q = discretize_awgn(mu, design_snr)
+
+
+    # print('discretized:', np.sum(q))
+    # qu = upper_convolve(q, mu)
+    # print('upper_convolve:', np.sum(qu))
+    # q0 = lower_convolve(q, mu)
+    # print('lower_convolve:', np.sum(q0))
 
 
 if __name__ == '__main__':

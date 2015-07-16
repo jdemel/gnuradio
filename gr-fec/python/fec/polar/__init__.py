@@ -22,11 +22,12 @@
 # turn this folder into a Python module
 
 import channel_construction as cc
+from channel_construction_bec import bhattacharyya_bounds
 
 
 def load_frozen_bits_info(is_prototype, channel, block_size, num_info_bits, design_snr, mu):
     num_frozen_bits = block_size - num_info_bits
-    z_params = cc.bhattacharyya_bounds(design_snr, block_size)
+    z_params = bhattacharyya_bounds(design_snr, block_size)
     data_set = {
         'positions': cc.get_frozen_bit_indices_from_z_parameters(z_params, num_frozen_bits),
         'values': [0, ] * num_frozen_bits,
@@ -40,6 +41,7 @@ def load_frozen_bits_info(is_prototype, channel, block_size, num_info_bits, desi
 
     if is_prototype:
         return data_set
+
     if channel == 'BSC':
         z_params = cc.load_z_parameters(block_size, design_snr, mu)
         data_set['positions'] = cc.get_frozen_bit_indices_from_z_parameters(z_params, num_frozen_bits)

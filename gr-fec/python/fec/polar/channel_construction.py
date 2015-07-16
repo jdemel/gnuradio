@@ -26,7 +26,7 @@ foundational paper for polar codes.
 
 import numpy as np
 from channel_construction_bec import calculate_bec_channel_capacities
-from channel_construction_bec import bhattacharyya_bounds, design_snr_to_bec_eta
+from channel_construction_bec import design_snr_to_bec_eta
 from channel_construction_bsc import tal_vardy_tpm_algorithm
 import matplotlib.pyplot as plt
 
@@ -94,7 +94,6 @@ def save_z_parameters(z_params, block_size, design_snr, mu):
     header += "block_size=" + str(block_size) + "\n"
     header += "design_snr=" + str(design_snr) + "\n"
     header += "mu=" + str(mu)
-    print(header)
     np.savetxt(path + filename, z_params, header=header)
 
 
@@ -112,38 +111,18 @@ def load_z_parameters(block_size, design_snr, mu):
 
 def main():
     print 'channel construction Bhattacharyya bounds by Arikan'
-    n = 6
+    n = 8
     m = 2 ** n
     k = m // 2
-    design_snr = 2
+    design_snr = -1.59
     mu = 32
 
-    ztv = tal_vardy_tpm_algorithm(m, design_snr, mu)
-    # ztv = np.arange(m)
-    # plt.plot(ztv)
-    #
-    # z_params = bhattacharyya_bounds(design_snr, m)
-    #
-    # plt.plot(z_params)
-    # plt.show()
-    #
-    # ztv_indices = get_frozen_bit_indices_from_z_parameters(ztv, k)
-    # upper_indices = get_frozen_bit_indices_from_z_parameters(z_params, k)
-    #
-    # first = np.zeros(m)
-    # first[ztv_indices] = 1.0
-    # second = np.zeros(m)
-    # second[upper_indices] = 1.0
-    # plt.plot(first)
-    # plt.plot(second)
-    # for i in range(len(first)):
-    #     if not first[i] == second[i]:
-    #         plt.axvline(i, color='r')
-    # plt.show()
-    save_z_parameters(ztv, m, design_snr, mu)
-    out_z = load_z_parameters(m, design_snr, mu)
-    print(ztv)
-    print(out_z)
+    # ztv = tal_vardy_tpm_algorithm(m, design_snr, mu)
+
+    z_params = load_z_parameters(m, design_snr, mu)
+    plt.plot(z_params)
+    plt.show()
+
 
 
 if __name__ == '__main__':

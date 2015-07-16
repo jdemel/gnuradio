@@ -3,8 +3,7 @@
   <name>POLAR code Configurator</name>
   <key>variable_polar_code_configurator</key>
   <import>from gnuradio.fec import polar</import>
-  <var_make>self.$(id) = $(id) = polar.load_frozen_bits_info(False, $channel.c, $block_size, $num_info_bits, $design_snr, $mu)
-  </var_make>
+  <var_make>self.$(id) = $(id) = polar.load_frozen_bits_info(False, $channel.c, $block_size, $num_info_bits, $design_snr, $mu)</var_make>
   <var_value>polar.load_frozen_bits_info(True, $channel.c, $block_size, $num_info_bits, $design_snr, $mu)</var_value>
   <make></make>
 
@@ -41,12 +40,14 @@
   <param>
     <name>design SNR</name>
     <key>design_snr</key>
+    <value>0.0</value>
     <type>float</type>
   </param>
 
   <param>
     <name>mu</name>
     <key>mu</key>
+    <value>16</value>
     <type>int</type>
     <hide>#if str($channel.h) == 'True' then 'all' else 'none'#</hide>
   </param>

@@ -19,6 +19,7 @@
 #
 
 import numpy as np
+import time, sys
 
 
 def power_of_2_int(num):
@@ -74,6 +75,17 @@ def pack_byte(bits):
     return res
 
 
+def show_progress_bar(ndone, ntotal):
+    nchars = 50
+
+    fract = (1. * ndone / ntotal)
+    percentage = 100. * fract
+    ndone_chars = int(nchars * fract)
+    nundone_chars = nchars - ndone_chars
+    sys.stdout.write('\r[{0}{1}] {2:5.2f}% ({3} / {4})'.format('=' * ndone_chars, ' ' * nundone_chars, percentage, ndone, ntotal))
+
+
+
 def mutual_information(w):
     '''
     calculate mutual information I(W)
@@ -116,6 +128,15 @@ def main():
 
     print(np.arange(16))
     print bit_reverse_vector(np.arange(16), 4)
+
+    ntotal = 99
+    for i in range(ntotal):
+        show_progress_bar(i, ntotal)
+        time.sleep(0.1)
+
+    # sys.stdout.write('Hello')
+    # time.sleep(1)
+    # sys.stdout.write('\rMomy   ')
 
 if __name__ == '__main__':
     main()

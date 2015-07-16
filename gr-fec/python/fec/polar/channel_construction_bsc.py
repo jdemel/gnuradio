@@ -207,10 +207,14 @@ def tal_vardy_tpm_algorithm(block_size, design_snr, mu):
     channels = np.zeros((block_size, 2, mu))
     channels[0] = discretize_awgn(mu, design_snr) * 2
 
+    print('Constructing polar code with Tal-Vardy algorithm')
+    print('(block_size = {0}, design SNR = {1}, mu = {2}'.format(block_size, design_snr, mu))
+    show_progress_bar(0, block_size)
     for j in range(0, block_power):
         u = 2 ** j
         for t in range(u):
-            print("(u={0}, t={1}) = {2}".format(u, t, u + t))
+            show_progress_bar(u + t, block_size)
+            # print("(u={0}, t={1}) = {2}".format(u, t, u + t))
             ch1 = upper_convolve(channels[t], mu)
             ch2 = lower_convolve(channels[t], mu)
             channels[t] = quantize_to_size(ch1, mu)
@@ -223,6 +227,9 @@ def tal_vardy_tpm_algorithm(block_size, design_snr, mu):
 
     z = z[bit_reverse_vector(np.arange(block_size), block_power)]
     z = upper_bound_z_params(z, block_size, design_snr)
+    show_progress_bar(block_size, block_size)
+    print('')
+    print('channel construction DONE')
     return z
 
 

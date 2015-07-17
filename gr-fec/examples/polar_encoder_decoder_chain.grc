@@ -146,7 +146,7 @@
     </param>
     <param>
       <key>design_snr</key>
-      <value>0.5</value>
+      <value>2.0</value>
     </param>
     <param>
       <key>mu</key>

@@ -101,6 +101,221 @@
     </param>
   </block>
   <block>
+    <key>variable_cc_decoder_def</key>
+    <param>
+      <key>padding</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>k</key>
+      <value>k</value>
+    </param>
+    <param>
+      <key>dim1</key>
+      <value>len(esno)</value>
+    </param>
+    <param>
+      <key>dim2</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>state_end</key>
+      <value>-1</value>
+    </param>
+    <param>
+      <key>framebits</key>
+      <value>block_size</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1368, 395)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>dec_cc</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>"ok"</value>
+    </param>
+    <param>
+      <key>ndim</key>
+      <value>2</value>
+    </param>
+    <param>
+      <key>polys</key>
+      <value>polys</value>
+    </param>
+    <param>
+      <key>rate</key>
+      <value>rate</value>
+    </param>
+    <param>
+      <key>state_start</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>mode</key>
+      <value>fec.CC_STREAMING</value>
+    </param>
+  </block>
+  <block>
+    <key>variable_cc_encoder_def</key>
+    <param>
+      <key>padding</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>k</key>
+      <value>k</value>
+    </param>
+    <param>
+      <key>dim1</key>
+      <value>len(esno)</value>
+    </param>
+    <param>
+      <key>dim2</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>framebits</key>
+      <value>block_size</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1368, 187)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>enc_cc</value>
+    </param>
+    <param>
+      <key>ndim</key>
+      <value>2</value>
+    </param>
+    <param>
+      <key>polys</key>
+      <value>polys</value>
+    </param>
+    <param>
+      <key>rate</key>
+      <value>rate</value>
+    </param>
+    <param>
+      <key>state_start</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>mode</key>
+      <value>fec.CC_STREAMING</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(704, 19)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>esno</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>numpy.arange(-1, 4, 0.5)</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1368, 115)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>k</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>7</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(536, 171)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>list_size</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>8</value>
+    </param>
+  </block>
+  <block>
     <key>variable</key>
     <param>
       <key>comment</key>
@@ -186,7 +401,7 @@
     </param>
     <param>
       <key>dim1</key>
-      <value>1</value>
+      <value>len(esno)</value>
     </param>
     <param>
       <key>dim2</key>
@@ -206,7 +421,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(512, 235)</value>
+      <value>(192, 419)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -222,7 +437,7 @@
     </param>
     <param>
       <key>ndim</key>
-      <value>0</value>
+      <value>2</value>
     </param>
   </block>
   <block>
@@ -241,7 +456,7 @@
     </param>
     <param>
       <key>dim1</key>
-      <value>1</value>
+      <value>len(esno)</value>
     </param>
     <param>
       <key>dim2</key>
@@ -261,7 +476,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(128, 235)</value>
+      <value>(192, 251)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -277,7 +492,62 @@
     </param>
     <param>
       <key>ndim</key>
+      <value>2</value>
+    </param>
+  </block>
+  <block>
+    <key>variable_polar_encoder_def</key>
+    <param>
+      <key>num_info_bits</key>
+      <value>n_info_bits</value>
+    </param>
+    <param>
+      <key>block_size</key>
+      <value>block_size</value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>dim1</key>
+      <value>len(esno)</value>
+    </param>
+    <param>
+      <key>dim2</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>frozen_bit_positions</key>
+      <value>polar_config['positions']</value>
+    </param>
+    <param>
+      <key>frozen_bit_values</key>
+      <value>polar_config['values']</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(456, 243)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
       <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>polar_encoder_scld</value>
+    </param>
+    <param>
+      <key>is_packed</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>ndim</key>
+      <value>2</value>
     </param>
   </block>
   <block>
@@ -296,7 +566,7 @@
     </param>
     <param>
       <key>dim1</key>
-      <value>1</value>
+      <value>len(esno)</value>
     </param>
     <param>
       <key>dim2</key>
@@ -316,7 +586,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(296, 235)</value>
+      <value>(456, 411)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -328,7 +598,7 @@
     </param>
     <param>
       <key>max_list_size</key>
-      <value>8</value>
+      <value>list_size</value>
     </param>
     <param>
       <key>is_packed</key>
@@ -336,7 +606,61 @@
     </param>
     <param>
       <key>ndim</key>
+      <value>2</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1440, 115)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
       <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>polys</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>[79, 109]</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1368, 51)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>rate</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>2</value>
     </param>
   </block>
   <block>
@@ -367,7 +691,7 @@
     </param>
   </block>
   <block>
-    <key>analog_random_source_x</key>
+    <key>fec_bercurve_generator</key>
     <param>
       <key>alias</key>
       <value></value>
@@ -381,12 +705,24 @@
       <value></value>
     </param>
     <param>
+      <key>decoder_list</key>
+      <value>polar_decoder</value>
+    </param>
+    <param>
       <key>_enabled</key>
       <value>True</value>
     </param>
     <param>
+      <key>encoder_list</key>
+      <value>polar_encoder</value>
+    </param>
+    <param>
+      <key>esno</key>
+      <value>esno</value>
+    </param>
+    <param>
       <key>_coordinate</key>
-      <value>(232, 667)</value>
+      <value>(808, 123)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -394,74 +730,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>analog_random_source_x_0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>max</key>
-      <value>2</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>min</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>num_samps</key>
-      <value>2 ** 10 +1</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>byte</value>
-    </param>
-    <param>
-      <key>repeat</key>
-      <value>True</value>
-    </param>
-  </block>
-  <block>
-    <key>blocks_add_const_vxx</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>const</key>
-      <value>1.0</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(808, 691)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>blocks_add_const_vxx_0</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>float</value>
+      <value>polar_curve_gen_sc</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -472,161 +741,25 @@
       <value>0</value>
     </param>
     <param>
-      <key>vlen</key>
-      <value>1</value>
+      <key>seed</key>
+      <value>0</value>
     </param>
+    <param>
+      <key>puncpat</key>
+      <value>'11'</value>
+    </param>
+    <param>
+      <key>samp_rate</key>
+      <value>3200000</value>
+    </param>
+    <param>
+      <key>threadtype</key>
+      <value>"none"</value>
+    </param>
+    <bus_source>1</bus_source>
   </block>
   <block>
-    <key>blocks_char_to_float</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1168, 691)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>blocks_char_to_float_0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>scale</key>
-      <value>1.0</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
-    </param>
-  </block>
-  <block>
-    <key>blocks_char_to_float</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(672, 691)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>blocks_char_to_float_0_0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>scale</key>
-      <value>-0.5</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
-    </param>
-  </block>
-  <block>
-    <key>fec_ber_bf</key>
-    <param>
-      <key>berlimit</key>
-      <value>-7.0</value>
-    </param>
-    <param>
-      <key>berminerrors</key>
-      <value>100</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(920, 560)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>fec_ber_bf_0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>test_mode</key>
-      <value>False</value>
-    </param>
-  </block>
-  <block>
-    <key>fec_extended_decoder</key>
-    <param>
-      <key>ann</key>
-      <value>None</value>
-    </param>
+    <key>fec_bercurve_generator</key>
     <param>
       <key>alias</key>
       <value></value>
@@ -648,8 +781,16 @@
       <value>True</value>
     </param>
     <param>
+      <key>encoder_list</key>
+      <value>polar_encoder_scld</value>
+    </param>
+    <param>
+      <key>esno</key>
+      <value>esno</value>
+    </param>
+    <param>
       <key>_coordinate</key>
-      <value>(928, 667)</value>
+      <value>(808, 227)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -657,7 +798,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>fec_extended_decoder_0</value>
+      <value>polar_curve_gen_scld</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -668,20 +809,25 @@
       <value>0</value>
     </param>
     <param>
+      <key>seed</key>
+      <value>0</value>
+    </param>
+    <param>
       <key>puncpat</key>
       <value>'11'</value>
     </param>
     <param>
-      <key>threadtype</key>
-      <value>none</value>
+      <key>samp_rate</key>
+      <value>3200000</value>
     </param>
     <param>
-      <key>value</key>
-      <value>fec_extended_decoder</value>
+      <key>threadtype</key>
+      <value>"none"</value>
     </param>
+    <bus_source>1</bus_source>
   </block>
   <block>
-    <key>fec_extended_encoder</key>
+    <key>fec_bercurve_generator</key>
     <param>
       <key>alias</key>
       <value></value>
@@ -693,6 +839,10 @@
     <param>
       <key>affinity</key>
       <value></value>
+    </param>
+    <param>
+      <key>decoder_list</key>
+      <value>dec_cc</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -700,11 +850,15 @@
     </param>
     <param>
       <key>encoder_list</key>
-      <value>polar_encoder</value>
+      <value>enc_cc</value>
+    </param>
+    <param>
+      <key>esno</key>
+      <value>esno</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(416, 675)</value>
+      <value>(808, 331)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -712,7 +866,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>fec_extended_encoder_0</value>
+      <value>polar_curve_gen_scld_0</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -723,23 +877,28 @@
       <value>0</value>
     </param>
     <param>
+      <key>seed</key>
+      <value>0</value>
+    </param>
+    <param>
       <key>puncpat</key>
       <value>'11'</value>
     </param>
     <param>
+      <key>samp_rate</key>
+      <value>3200000</value>
+    </param>
+    <param>
       <key>threadtype</key>
-      <value>none</value>
+      <value>"capillary"</value>
     </param>
+    <bus_source>1</bus_source>
   </block>
   <block>
-    <key>qtgui_number_sink</key>
+    <key>qtgui_bercurve_sink</key>
     <param>
-      <key>autoscale</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>avg</key>
-      <value>0</value>
+      <key>berlimit</key>
+      <value>-7.0</value>
     </param>
     <param>
       <key>alias</key>
@@ -754,12 +913,16 @@
       <value></value>
     </param>
     <param>
+      <key>curvenames</key>
+      <value>['POLAR decoder', 'POLAR decoder list', 'CC']</value>
+    </param>
+    <param>
       <key>_enabled</key>
       <value>True</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1200, 555)</value>
+      <value>(1176, 146)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -770,251 +933,8 @@
       <value>0</value>
     </param>
     <param>
-      <key>graph_type</key>
-      <value>qtgui.NUM_GRAPH_HORIZ</value>
-    </param>
-    <param>
       <key>id</key>
-      <value>qtgui_number_sink_0</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>float</value>
-    </param>
-    <param>
-      <key>color1</key>
-      <value>("black", "black")</value>
-    </param>
-    <param>
-      <key>factor1</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>label1</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit1</key>
-      <value></value>
-    </param>
-    <param>
-      <key>color10</key>
-      <value>("black", "black")</value>
-    </param>
-    <param>
-      <key>factor10</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>label10</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit10</key>
-      <value></value>
-    </param>
-    <param>
-      <key>color2</key>
-      <value>("black", "black")</value>
-    </param>
-    <param>
-      <key>factor2</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>label2</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit2</key>
-      <value></value>
-    </param>
-    <param>
-      <key>color3</key>
-      <value>("black", "black")</value>
-    </param>
-    <param>
-      <key>factor3</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>label3</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit3</key>
-      <value></value>
-    </param>
-    <param>
-      <key>color4</key>
-      <value>("black", "black")</value>
-    </param>
-    <param>
-      <key>factor4</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>label4</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit4</key>
-      <value></value>
-    </param>
-    <param>
-      <key>color5</key>
-      <value>("black", "black")</value>
-    </param>
-    <param>
-      <key>factor5</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>label5</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit5</key>
-      <value></value>
-    </param>
-    <param>
-      <key>color6</key>
-      <value>("black", "black")</value>
-    </param>
-    <param>
-      <key>factor6</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>label6</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit6</key>
-      <value></value>
-    </param>
-    <param>
-      <key>color7</key>
-      <value>("black", "black")</value>
-    </param>
-    <param>
-      <key>factor7</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>label7</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit7</key>
-      <value></value>
-    </param>
-    <param>
-      <key>color8</key>
-      <value>("black", "black")</value>
-    </param>
-    <param>
-      <key>factor8</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>label8</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit8</key>
-      <value></value>
-    </param>
-    <param>
-      <key>color9</key>
-      <value>("black", "black")</value>
-    </param>
-    <param>
-      <key>factor9</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>label9</key>
-      <value></value>
-    </param>
-    <param>
-      <key>unit9</key>
-      <value></value>
-    </param>
-    <param>
-      <key>max</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>min</key>
-      <value>-1</value>
-    </param>
-    <param>
-      <key>name</key>
-      <value>""</value>
-    </param>
-    <param>
-      <key>nconnections</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>update_time</key>
-      <value>0.10</value>
-    </param>
-  </block>
-  <block>
-    <key>qtgui_time_sink_x</key>
-    <param>
-      <key>autoscale</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>ctrlpanel</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>entags</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1304, 675)</value>
-    </param>
-    <param>
-      <key>gui_hint</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>grid</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>qtgui_time_sink_x_0</value>
-    </param>
-    <param>
-      <key>legend</key>
-      <value>True</value>
+      <value>qtgui_bercurve_sink_0</value>
     </param>
     <param>
       <key>alpha1</key>
@@ -1026,11 +946,11 @@
     </param>
     <param>
       <key>label1</key>
-      <value></value>
+      <value>POLAR decoder</value>
     </param>
     <param>
       <key>marker1</key>
-      <value>-1</value>
+      <value>0</value>
     </param>
     <param>
       <key>style1</key>
@@ -1054,7 +974,7 @@
     </param>
     <param>
       <key>marker10</key>
-      <value>-1</value>
+      <value>0</value>
     </param>
     <param>
       <key>style10</key>
@@ -1074,11 +994,11 @@
     </param>
     <param>
       <key>label2</key>
-      <value></value>
+      <value>POLAR list decoder</value>
     </param>
     <param>
       <key>marker2</key>
-      <value>-1</value>
+      <value>0</value>
     </param>
     <param>
       <key>style2</key>
@@ -1098,11 +1018,11 @@
     </param>
     <param>
       <key>label3</key>
-      <value></value>
+      <value>CC convolutional</value>
     </param>
     <param>
       <key>marker3</key>
-      <value>-1</value>
+      <value>0</value>
     </param>
     <param>
       <key>style3</key>
@@ -1126,7 +1046,7 @@
     </param>
     <param>
       <key>marker4</key>
-      <value>-1</value>
+      <value>0</value>
     </param>
     <param>
       <key>style4</key>
@@ -1150,7 +1070,7 @@
     </param>
     <param>
       <key>marker5</key>
-      <value>-1</value>
+      <value>0</value>
     </param>
     <param>
       <key>style5</key>
@@ -1174,7 +1094,7 @@
     </param>
     <param>
       <key>marker6</key>
-      <value>-1</value>
+      <value>0</value>
     </param>
     <param>
       <key>style6</key>
@@ -1198,7 +1118,7 @@
     </param>
     <param>
       <key>marker7</key>
-      <value>-1</value>
+      <value>0</value>
     </param>
     <param>
       <key>style7</key>
@@ -1222,7 +1142,7 @@
     </param>
     <param>
       <key>marker8</key>
-      <value>-1</value>
+      <value>0</value>
     </param>
     <param>
       <key>style8</key>
@@ -1246,7 +1166,7 @@
     </param>
     <param>
       <key>marker9</key>
-      <value>-1</value>
+      <value>0</value>
     </param>
     <param>
       <key>style9</key>
@@ -1257,122 +1177,407 @@
       <value>1</value>
     </param>
     <param>
-      <key>name</key>
-      <value>""</value>
+      <key>berminerrors</key>
+      <value>100</value>
     </param>
     <param>
-      <key>nconnections</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>size</key>
-      <value>2048</value>
-    </param>
-    <param>
-      <key>srate</key>
-      <value>samp_rate</value>
-    </param>
-    <param>
-      <key>tr_chan</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>tr_delay</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>tr_level</key>
-      <value>0.0</value>
-    </param>
-    <param>
-      <key>tr_mode</key>
-      <value>qtgui.TRIG_MODE_FREE</value>
-    </param>
-    <param>
-      <key>tr_slope</key>
-      <value>qtgui.TRIG_SLOPE_POS</value>
-    </param>
-    <param>
-      <key>tr_tag</key>
-      <value>""</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>float</value>
+      <key>num_curves</key>
+      <value>3</value>
     </param>
     <param>
       <key>update_time</key>
       <value>0.10</value>
     </param>
     <param>
-      <key>ylabel</key>
-      <value>Amplitude</value>
-    </param>
-    <param>
-      <key>yunit</key>
-      <value>""</value>
-    </param>
-    <param>
       <key>ymax</key>
-      <value>1</value>
+      <value>0</value>
     </param>
     <param>
       <key>ymin</key>
-      <value>-1</value>
+      <value>-10</value>
     </param>
+    <param>
+      <key>esno</key>
+      <value>esno</value>
+    </param>
+    <bus_sink>1</bus_sink>
   </block>
   <connection>
-    <source_block_id>analog_random_source_x_0</source_block_id>
-    <sink_block_id>fec_ber_bf_0</sink_block_id>
+    <source_block_id>polar_curve_gen_sc</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>20</source_key>
+    <sink_key>60</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_sc</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>analog_random_source_x_0</source_block_id>
-    <sink_block_id>fec_extended_encoder_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>blocks_add_const_vxx_0</source_block_id>
-    <sink_block_id>fec_extended_decoder_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>blocks_char_to_float_0</source_block_id>
-    <sink_block_id>qtgui_time_sink_x_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>blocks_char_to_float_0_0</source_block_id>
-    <sink_block_id>blocks_add_const_vxx_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>fec_ber_bf_0</source_block_id>
-    <sink_block_id>qtgui_number_sink_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>fec_extended_decoder_0</source_block_id>
-    <sink_block_id>blocks_char_to_float_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>fec_extended_decoder_0</source_block_id>
-    <sink_block_id>fec_ber_bf_0</sink_block_id>
-    <source_key>0</source_key>
+    <source_block_id>polar_curve_gen_sc</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>1</source_key>
     <sink_key>1</sink_key>
   </connection>
   <connection>
-    <source_block_id>fec_extended_encoder_0</source_block_id>
-    <sink_block_id>blocks_char_to_float_0_0</sink_block_id>
+    <source_block_id>polar_curve_gen_sc</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>10</source_key>
+    <sink_key>10</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_sc</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>11</source_key>
+    <sink_key>11</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_sc</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>12</source_key>
+    <sink_key>12</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_sc</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>13</source_key>
+    <sink_key>13</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_sc</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>14</source_key>
+    <sink_key>14</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_sc</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>15</source_key>
+    <sink_key>15</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_sc</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>16</source_key>
+    <sink_key>16</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_sc</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>17</source_key>
+    <sink_key>17</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_sc</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>18</source_key>
+    <sink_key>18</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_sc</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>19</source_key>
+    <sink_key>19</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_sc</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>2</source_key>
+    <sink_key>2</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_sc</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>3</source_key>
+    <sink_key>3</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_sc</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>4</source_key>
+    <sink_key>4</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_sc</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>5</source_key>
+    <sink_key>5</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_sc</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>6</source_key>
+    <sink_key>6</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_sc</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>7</source_key>
+    <sink_key>7</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_sc</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>8</source_key>
+    <sink_key>8</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_sc</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>9</source_key>
+    <sink_key>9</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>20</source_key>
+    <sink_key>61</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
     <source_key>0</source_key>
-    <sink_key>0</sink_key>
+    <sink_key>20</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>1</source_key>
+    <sink_key>21</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>10</source_key>
+    <sink_key>30</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>11</source_key>
+    <sink_key>31</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>12</source_key>
+    <sink_key>32</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>13</source_key>
+    <sink_key>33</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>14</source_key>
+    <sink_key>34</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>15</source_key>
+    <sink_key>35</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>16</source_key>
+    <sink_key>36</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>17</source_key>
+    <sink_key>37</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>18</source_key>
+    <sink_key>38</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>19</source_key>
+    <sink_key>39</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>2</source_key>
+    <sink_key>22</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>3</source_key>
+    <sink_key>23</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>4</source_key>
+    <sink_key>24</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>5</source_key>
+    <sink_key>25</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>6</source_key>
+    <sink_key>26</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>7</source_key>
+    <sink_key>27</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>8</source_key>
+    <sink_key>28</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>9</source_key>
+    <sink_key>29</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld_0</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>20</source_key>
+    <sink_key>62</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld_0</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>40</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld_0</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>1</source_key>
+    <sink_key>41</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld_0</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>10</source_key>
+    <sink_key>50</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld_0</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>11</source_key>
+    <sink_key>51</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld_0</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>12</source_key>
+    <sink_key>52</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld_0</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>13</source_key>
+    <sink_key>53</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld_0</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>14</source_key>
+    <sink_key>54</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld_0</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>15</source_key>
+    <sink_key>55</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld_0</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>16</source_key>
+    <sink_key>56</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld_0</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>17</source_key>
+    <sink_key>57</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld_0</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>18</source_key>
+    <sink_key>58</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld_0</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>19</source_key>
+    <sink_key>59</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld_0</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>2</source_key>
+    <sink_key>42</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld_0</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>3</source_key>
+    <sink_key>43</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld_0</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>4</source_key>
+    <sink_key>44</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld_0</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>5</source_key>
+    <sink_key>45</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld_0</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>6</source_key>
+    <sink_key>46</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld_0</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>7</source_key>
+    <sink_key>47</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld_0</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>8</source_key>
+    <sink_key>48</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>polar_curve_gen_scld_0</source_block_id>
+    <sink_block_id>qtgui_bercurve_sink_0</sink_block_id>
+    <source_key>9</source_key>
+    <sink_key>49</sink_key>
   </connection>
 </flow_graph>

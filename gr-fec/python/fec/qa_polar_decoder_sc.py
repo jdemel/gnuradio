@@ -77,7 +77,7 @@ class test_polar_decoder_sc(gr_unittest.TestCase):
         encoder = PolarEncoder(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values)
         data = encoder.encode(bits)
         # data = np.array([0, 1, 1, 0, 1, 0, 1, 0], dtype=int)
-        gr_data = -2.0 * data + 1.0
+        gr_data = 2.0 * data - 1.0
 
         polar_decoder = fec.polar_decoder_sc.make(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values, is_packed)
         src = blocks.vector_source_f(gr_data, False)
@@ -124,7 +124,7 @@ class test_polar_decoder_sc(gr_unittest.TestCase):
         # bits = np.random.randint(2, size=num_info_bits)
         # data = encoder.encode(bits)
         # data = np.array([0, 1, 1, 0, 1, 0, 1, 0], dtype=int)
-        gr_data = -2.0 * data + 1.0
+        gr_data = 2.0 * data - 1.0
 
         polar_decoder = fec.polar_decoder_sc.make(block_size, num_info_bits, frozen_bit_positions, frozen_bit_values, is_packed)
         src = blocks.vector_source_f(gr_data, False)

@@ -52,7 +52,6 @@ class Block(_Block, _GUIBlock):
         self._var_make = n.find('var_make')
         self._checks = n.findall('check')
         self._callbacks = n.findall('callback')
-        self._throttle = n.find('throttle') or ''
         self._bus_structure_source = n.find('bus_structure_source') or ''
         self._bus_structure_sink = n.find('bus_structure_sink') or ''
         #build the block
@@ -77,8 +76,6 @@ class Block(_Block, _GUIBlock):
             return clean_bus_structure
 
         except: return ''
-
-    def throttle(self): return bool(self._throttle)
 
     def validate(self):
         """
@@ -106,7 +103,8 @@ class Block(_Block, _GUIBlock):
         current_generate_option = self.get_parent().get_option('generate_options')
         for label, option in (('WX GUI', 'wx_gui'), ('QT GUI', 'qt_gui')):
             if self.get_name().startswith(label) and current_generate_option != option:
-                self.add_error_message("Can't generate this block in mode " + repr(option))
+                self.add_error_message("Can't generate this block in mode " +
+                                       repr(current_generate_option))
 
     def rewrite(self):
         """

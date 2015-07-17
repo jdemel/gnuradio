@@ -30,7 +30,7 @@ namespace gr {
   namespace dtv {
 
     dvbt2_p1insertion_cc::sptr
-    dvbt2_p1insertion_cc::make(dvbt2_extended_carrier_t carriermode, dvbt2_fftsize_t fftsize, dvbt2_guardinterval_t guardinterval, int numdatasyms, dvbt2_preamble_t preamble, dvbt2_showlevels_t showlevels, float vclip)
+    dvbt2_p1insertion_cc::make(dvbt2_extended_carrier_t carriermode, dvbt2_fftsize_t fftsize, dvb_guardinterval_t guardinterval, int numdatasyms, dvbt2_preamble_t preamble, dvbt2_showlevels_t showlevels, float vclip)
     {
       return gnuradio::get_initial_sptr
         (new dvbt2_p1insertion_cc_impl(carriermode, fftsize, guardinterval, numdatasyms, preamble, showlevels, vclip));
@@ -39,13 +39,12 @@ namespace gr {
     /*
      * The private constructor
      */
-    dvbt2_p1insertion_cc_impl::dvbt2_p1insertion_cc_impl(dvbt2_extended_carrier_t carriermode, dvbt2_fftsize_t fftsize, dvbt2_guardinterval_t guardinterval, int numdatasyms, dvbt2_preamble_t preamble, dvbt2_showlevels_t showlevels, float vclip)
+    dvbt2_p1insertion_cc_impl::dvbt2_p1insertion_cc_impl(dvbt2_extended_carrier_t carriermode, dvbt2_fftsize_t fftsize, dvb_guardinterval_t guardinterval, int numdatasyms, dvbt2_preamble_t preamble, dvbt2_showlevels_t showlevels, float vclip)
       : gr::block("dvbt2_p1insertion_cc",
               gr::io_signature::make(1, 1, sizeof(gr_complex)),
               gr::io_signature::make(1, 1, sizeof(gr_complex)))
     {
       int s1, s2, index = 0;
-      int fef_present = FALSE;    /* for testing only */
       const gr_complex *in = (const gr_complex *) p1_freq;
       gr_complex *out = (gr_complex *) p1_time;
       s1 = preamble;
@@ -103,9 +102,6 @@ namespace gr {
       }
       init_p1_randomizer();
       s2 = (fftsize & 0x7) << 1;
-      if (fef_present == TRUE) {
-        s2 |= 1;
-      }
       for (int i = 0; i < 8; i++) {
         for (int j = 7; j >= 0; j--) {
           modulation_sequence[index++] = (s1_modulation_patterns[s1][i] >> j) & 0x1;

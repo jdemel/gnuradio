@@ -21,7 +21,7 @@ import pygtk
 pygtk.require('2.0')
 import gtk
 
-from Dialogs import TextDisplay
+from Dialogs import SimpleTextDisplay
 from Constants import MIN_DIALOG_WIDTH, MIN_DIALOG_HEIGHT
 import Utils
 
@@ -95,14 +95,14 @@ class PropsDialog(gtk.Dialog):
             self._params_boxes.append((tab, label, vbox))
 
         # Docs for the block
-        self._docs_text_display = TextDisplay()
+        self._docs_text_display = SimpleTextDisplay()
         self._docs_box = gtk.ScrolledWindow()
         self._docs_box.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         self._docs_box.add_with_viewport(self._docs_text_display)
         notebook.append_page(self._docs_box, gtk.Label("Documentation"))
 
         # Error Messages for the block
-        self._error_messages_text_display = TextDisplay()
+        self._error_messages_text_display = SimpleTextDisplay()
         self._error_box = gtk.ScrolledWindow()
         self._error_box.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         self._error_box.add_with_viewport(self._error_messages_text_display)
@@ -161,7 +161,9 @@ class PropsDialog(gtk.Dialog):
             for tab, label, vbox in self._params_boxes:
                 vbox.hide_all()
                 # empty the params box
-                vbox.forall(lambda c: vbox.remove(c) or c.destroy())
+                for child in vbox.get_children():
+                    vbox.remove(child)
+                    child.destroy()
                 # repopulate the params box
                 box_all_valid = True
                 for param in filter(lambda p: p.get_tab_label() == tab, self._block.get_params()):
@@ -202,7 +204,8 @@ class PropsDialog(gtk.Dialog):
     def _handle_response(self, widget, response):
         if response in (gtk.RESPONSE_APPLY, gtk.RESPONSE_ACCEPT):
             for tab, label, vbox in self._params_boxes:
-                vbox.forall(lambda c: c.apply_pending_changes())
+                for child in vbox.get_children():
+                    child.apply_pending_changes()
             self.set_response_sensitive(gtk.RESPONSE_APPLY, False)
             return True
         return False

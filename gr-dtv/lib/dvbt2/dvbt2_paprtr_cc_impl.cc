@@ -31,7 +31,7 @@ namespace gr {
   namespace dtv {
 
     dvbt2_paprtr_cc::sptr
-    dvbt2_paprtr_cc::make(dvbt2_extended_carrier_t carriermode, dvbt2_fftsize_t fftsize, dvbt2_pilotpattern_t pilotpattern, dvbt2_guardinterval_t guardinterval, int numdatasyms, dvbt2_papr_t paprmode, dvbt2_version_t version, float vclip, int iterations, int vlength)
+    dvbt2_paprtr_cc::make(dvbt2_extended_carrier_t carriermode, dvbt2_fftsize_t fftsize, dvbt2_pilotpattern_t pilotpattern, dvb_guardinterval_t guardinterval, int numdatasyms, dvbt2_papr_t paprmode, dvbt2_version_t version, float vclip, int iterations, int vlength)
     {
       return gnuradio::get_initial_sptr
         (new dvbt2_paprtr_cc_impl(carriermode, fftsize, pilotpattern, guardinterval, numdatasyms, paprmode, version, vclip, iterations, vlength));
@@ -40,7 +40,7 @@ namespace gr {
     /*
      * The private constructor
      */
-    dvbt2_paprtr_cc_impl::dvbt2_paprtr_cc_impl(dvbt2_extended_carrier_t carriermode, dvbt2_fftsize_t fftsize, dvbt2_pilotpattern_t pilotpattern, dvbt2_guardinterval_t guardinterval, int numdatasyms, dvbt2_papr_t paprmode, dvbt2_version_t version, float vclip, int iterations, int vlength)
+    dvbt2_paprtr_cc_impl::dvbt2_paprtr_cc_impl(dvbt2_extended_carrier_t carriermode, dvbt2_fftsize_t fftsize, dvbt2_pilotpattern_t pilotpattern, dvb_guardinterval_t guardinterval, int numdatasyms, dvbt2_papr_t paprmode, dvbt2_version_t version, float vclip, int iterations, int vlength)
       : gr::sync_block("dvbt2_paprtr_cc",
               gr::io_signature::make(1, 1, sizeof(gr_complex) * vlength),
               gr::io_signature::make(1, 1, sizeof(gr_complex) * vlength))
@@ -500,6 +500,8 @@ namespace gr {
           dy = 16;
           break;
       }
+      shift = 0;
+      papr_map = p2_papr_map;
       fft_size = fftsize;
       pilot_pattern = pilotpattern;
       carrier_mode = carriermode;

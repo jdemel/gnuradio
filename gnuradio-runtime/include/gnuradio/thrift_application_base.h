@@ -217,7 +217,7 @@ void thrift_application_base<TserverBase, TserverClass>::start_application()
     }
 
     if(!app_started) {
-      GR_WARN("thrift", "thrift_application_base::start_application(), "
+      GR_WARN("thrift_application_base", "thrift_application_base::start_application(), "
               "timeout waiting to port number might have failed?");
     }
 

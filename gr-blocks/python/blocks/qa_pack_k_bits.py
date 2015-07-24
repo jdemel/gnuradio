@@ -21,11 +21,12 @@
 #
 
 import random
+import numpy as np
 
 from gnuradio import gr, gr_unittest, blocks
 
-class test_pack(gr_unittest.TestCase):
 
+class test_pack(gr_unittest.TestCase):
     def setUp(self):
         self.tb = gr.top_block()
 
@@ -33,9 +34,9 @@ class test_pack(gr_unittest.TestCase):
         self.tb = None
 
     def test_001(self):
-        src_data =              (1,0,1,1,0,1,1,0)
-        expected_results =      (1,0,1,1,0,1,1,0)
-        src = blocks.vector_source_b(src_data,False)
+        src_data = (1, 0, 1, 1, 0, 1, 1, 0)
+        expected_results = (1, 0, 1, 1, 0, 1, 1, 0)
+        src = blocks.vector_source_b(src_data, False)
         op = blocks.pack_k_bits_bb(1)
         dst = blocks.vector_sink_b()
         self.tb.connect(src, op, dst)
@@ -43,26 +44,41 @@ class test_pack(gr_unittest.TestCase):
         self.assertEqual(expected_results, dst.data())
 
     def test_002(self):
-        src_data =              (1,0,1,1,0,0,0,1)
-        expected_results =      (  2,  3,  0,  1)
-        src = blocks.vector_source_b(src_data,False)
+        src_data = (1, 0, 1, 1, 0, 0, 0, 1)
+        expected_results = (  2, 3, 0, 1)
+        src = blocks.vector_source_b(src_data, False)
         op = blocks.pack_k_bits_bb(2)
         dst = blocks.vector_sink_b()
         self.tb.connect(src, op, dst)
         self.tb.run()
-        #self.assertEqual(expected_results, dst.data())
+        # self.assertEqual(expected_results, dst.data())
         self.assertEqual(expected_results, dst.data())
 
     def test_003(self):
-        src_data = expected_results = map(lambda x: random.randint(0,3), range(10));
-        src = blocks.vector_source_b( src_data );
+        src_data = expected_results = map(lambda x: random.randint(0, 3), range(10));
+        src = blocks.vector_source_b(src_data);
         pack = blocks.pack_k_bits_bb(2);
         unpack = blocks.unpack_k_bits_bb(2);
         snk = blocks.vector_sink_b();
-        self.tb.connect(src,unpack,pack,snk);
+        self.tb.connect(src, unpack, pack, snk);
         self.tb.run()
         self.assertEqual(list(expected_results), list(snk.data()));
 
+    def test_004(self):
+        # this test is designed to call volk_8u_pack8_8u.
+        n = 23  # choose an uneven value here. make sure a tailcase is generated.
+        nbits = n * 8
+        src_data = np.random.randint(2, size=nbits)
+        expected_results = tuple(np.packbits(src_data))
+        src = blocks.vector_source_b(src_data, False)
+        op = blocks.pack_k_bits_bb(8)
+        dst = blocks.vector_sink_b()
+        self.tb.connect(src, op, dst)
+        self.tb.run()
+        result = dst.data()
+        self.assertTupleEqual(expected_results, result)
+
+
 if __name__ == '__main__':
-   gr_unittest.run(test_pack, "test_pack.xml")
+    gr_unittest.run(test_pack, "test_pack.xml")
 

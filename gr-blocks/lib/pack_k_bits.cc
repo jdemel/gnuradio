@@ -25,6 +25,7 @@
 #endif
 
 #include <gnuradio/blocks/pack_k_bits.h>
+#include <volk/volk.h>
 #include <stdexcept>
 #include <iostream>
 
@@ -46,11 +47,17 @@ namespace gr {
       void
       pack_k_bits::pack(unsigned char *bytes, const unsigned char *bits, int nbytes) const
       {
-        for(int i = 0; i < nbytes; i++) {
-          bytes[i] = 0x00;
-          for(unsigned int j = 0; j < d_k; j++) {
-            bytes[i] |= (0x01 & bits[i*d_k+j])<<(d_k-j-1);
-          }
+        switch(d_k){
+          case 8:
+            volk_8u_pack8_8u(bytes, bits, nbytes);
+            break;
+          default:
+            for(int i = 0; i < nbytes; i++){
+              bytes[i] = 0x00;
+              for(unsigned int j = 0; j < d_k; j++){
+                bytes[i] |= (0x01 & bits[i * d_k + j]) << (d_k - j - 1);
+              }
+            }
         }
       }
 

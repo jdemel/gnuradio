@@ -66,7 +66,7 @@ class test_pack(gr_unittest.TestCase):
 
     def test_004(self):
         # this test is designed to call volk_8u_pack8_8u.
-        n = 23  # choose an uneven value here. make sure a tailcase is generated.
+        n = 230  # choose an uneven value here. make sure a tailcase is generated.
         nbits = n * 8
         src_data = np.random.randint(2, size=nbits)
         expected_results = tuple(np.packbits(src_data))
